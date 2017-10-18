@@ -11,6 +11,13 @@ reddit = praw.Reddit(client_id=Config.cid,
                      username=Config.user)
 subreddit = reddit.subreddit('googleplaydeals')
 blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
+def flair(app_rating, num_installs, sub):
+    num_installs = num_installs[2:100]
+    if num_installs in ['1 - 5', '5 - 10', '10 - 50', '50 - 100', '100 - 500', '  Couldn\'t get # of installs (probably a new app)']:
+        sub.mod.flair(text='New app', css_class=None)
+    elif num_installs not in ['500- 1,000', '1,000 - 5,000', '5,000 - 10,000'] and app_rating[0:1] in ['4', '5']:
+        sub.mod.flair(text= 'Popular app', css_class=None)
+    print(num_installs)
 def crawl(s, u):
     print("Crawling...")
     page = requests.get(u).text
@@ -75,6 +82,7 @@ def crawl(s, u):
     #    file_size = "this shit don't work"
 
 	# mash all that info together into a comment (this is really ugly I know)
+    flair(rating, installs, submission)
     return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs[2:100] + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + "  \nShort description: " + desc[0:400] + "...  \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
