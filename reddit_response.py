@@ -80,7 +80,7 @@ def crawl(s, u):
 def respond(submission):
     title_url = submission.url
     reply_text = crawl(submission, title_url)
-    reply_text += "\n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
+    reply_text += "\n\n*****\n\n^^^[Source code](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
     if reply_text[0:6] == "Sorry,":
         submission.mod.remove()
         submission.reply(reply_text).mod.distinguish()
