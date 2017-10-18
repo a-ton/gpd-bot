@@ -9,7 +9,7 @@ reddit = praw.Reddit(client_id=Config.cid,
                      password=Config.password,
                      user_agent=Config.agent,
                      username=Config.user)
-subreddit = reddit.subreddit('gpdbot')
+subreddit = reddit.subreddit('googleplaydeals')
 blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
 def crawl(s, u):
     print("Crawling...")
