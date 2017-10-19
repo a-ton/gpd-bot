@@ -83,3 +83,7 @@ while True:
     except (HTTPError, ConnectionError, Timeout):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
+
+    except praw.exceptions.APIException:
+        print ("rate limited, wait 5 seconds")
+        time.sleep(5)
