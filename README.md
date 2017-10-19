@@ -1,11 +1,11 @@
 #### The Google Play Deals Bot was created to do two things for the /r/GooglePlayDeals subreddit:
 
-* respond to all app submissions on /r/GooglePlayDeals with information about the app found on the store page. 
-* handle flairing deals when they are expired. 
+* Respond to all app submissions on /r/GooglePlayDeals with information about the app found on the store page. 
+* Handle flairing deals when they are expired. 
 
 #### These are the current features but here are a few more I would like to implement:
 
-* Logging (errors, post id's)
+* Logging (errors, ~post ids~)
 * Getting links from text posts
 * (more to come when I remember them)
 
