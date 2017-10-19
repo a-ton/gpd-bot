@@ -12,6 +12,13 @@ reddit = praw.Reddit(client_id=Config.cid,
 subreddit = reddit.subreddit('googleplaydeals')
 blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
 footer = "\n\n*****\n\n^^^[Code](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
+file = open("postids.txt","a+")
+file.close()
+def logID(postid):
+    f = open("postids.txt","a+")
+    f.write(postid + "\n")
+    f.close
+
 def crawl(s, u):
     print("Crawling...")
     page = requests.get(u).text
@@ -91,29 +98,35 @@ def respond(submission):
     else:
         submission.reply(reply_text)
         print("Replied to: " + submission.title)
+    logID(submission.id)
 
 while True:
     try:
+        print("Initilizng bot...")
         for submission in subreddit.stream.submissions():
             responded = 0
-            if submission.created < int(time.time()) - 86400:
+            if submission.is_self:
                 responded = 1
-            elif submission.is_self:
+            elif submission.created < int(time.time()) - 86400:
                 responded = 1
             elif submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
-                for top_level_comment in submission.comments:
-                    try:
-                        if top_level_comment.author.name == "GPDBot":
-                            responded = 1
-                            break
-                    except AttributeError:
-                        responded = 0
-            else:
-                responded = 1
-            if responded == 1:
-                print("Skipping: " + submission.title)
-            else:
+                if submission.id in open('postids.txt').read():
+                    responded = 1
+                else:
+                    for top_level_comment in submission.comments:
+                        try:
+                            if top_level_comment.author.name == "GPDBot":
+                                responded = 1
+                                logID(submission.id)
+                                break
+                        except AttributeError:
+                            responded = 0
+            if responded == 0:
                 respond(submission)
     except (HTTPError, ConnectionError, Timeout):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
+
+    except praw.exceptions.APIException:
+        print ("rate limited, wait 5 seconds")
+        time.sleep(5)
