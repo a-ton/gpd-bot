@@ -102,7 +102,7 @@ def respond(submission):
 
 while True:
     try:
-        print("Initilizng bot...")
+        print("Initializing bot...")
         for submission in subreddit.stream.submissions():
             responded = 0
             if submission.is_self:
