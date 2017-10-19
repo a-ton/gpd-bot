@@ -11,6 +11,7 @@ reddit = praw.Reddit(client_id=Config.cid,
                      username=Config.user)
 subreddit = reddit.subreddit('googleplaydeals')
 blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
+footer = "\n\n*****\n\n^^^[Code](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
 def crawl(s, u):
     print("Crawling...")
     page = requests.get(u).text
@@ -80,12 +81,12 @@ def crawl(s, u):
 def respond(submission):
     title_url = submission.url
     reply_text = crawl(submission, title_url)
-    reply_text += "\n\n*****\n\n^^^[Source code](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
+    reply_text += footer;
     if reply_text[0:6] == "Sorry,":
         submission.mod.remove()
         submission.reply(reply_text).mod.distinguish()
         print("Removed (developer blacklist): " + submission.title)
-    elif reply_text == "incorrect link\n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)":
+    elif reply_text == "incorrect link" + footer:
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
         submission.reply(reply_text)
