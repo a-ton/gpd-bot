@@ -1,3 +1,0 @@
-Required to run this bot: (install via pip)
-PRAW 5.1.0
-bs4

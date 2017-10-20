@@ -5,6 +5,7 @@ import requests
 import Config
 from bs4 import BeautifulSoup
 responded = 0
+footer = "\n\n*****\n\n^^^[Source](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
                      password=Config.password,
@@ -65,7 +66,7 @@ while True:
                             msg.mark_read()
                             msg.submission.mod.flair(text=None, css_class=None)
                             print("unflairing... responded to: " + msg.author.name)
-                            msg.reply("Flair removed. Please report the user who originally marked this deal as expired.\n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)")
+                            msg.reply("Flair removed. Please report the user who originally marked this deal as expired." + footer)
                         elif expired:
                             msg.mark_read()
                             title_url = msg.submission.url
@@ -73,12 +74,16 @@ while True:
                             if is_expired:
                                 msg.submission.mod.flair(text='Deal Expired', css_class='expired')
                                 print("flairing... responded to: " + msg.author.name)
-                                msg.reply("Deal marked as expired. Reply with \"oops\" if this is incorrect. \n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)")
+                                msg.reply("Deal marked as expired. Reply with \"oops\" if this is incorrect." + footer)
                             else:
                                 print("not expired... responded to: " + msg.author.name)
-                                msg.reply("This still appears to be a deal, not marked as expired.\n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)")
+                                msg.reply("This still appears to be a deal, not marked as expired." + footer)
             except AttributeError:
                 print("error checking comment by: " + msg.author.name)
     except (HTTPError, ConnectionError, Timeout):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
+
+    except praw.exceptions.APIException:
+        print ("rate limited, wait 5 seconds")
+        time.sleep(5)

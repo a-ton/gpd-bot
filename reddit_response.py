@@ -17,7 +17,20 @@ def flair(app_rating, num_installs, sub):
         sub.mod.flair(text='New app', css_class=None)
     elif num_installs not in ['500- 1,000', '1,000 - 5,000', '5,000 - 10,000'] and app_rating[0:1] in ['4', '5']:
         sub.mod.flair(text= 'Popular app', css_class=None)
-    print(num_installs)
+footer = """
+
+*****
+
+^^^[Source](https://github.com/a-ton/gpd-bot)
+^^^|
+^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"""
+file = open("postids.txt","a+")
+file.close()
+def logID(postid):
+    f = open("postids.txt","a+")
+    f.write(postid + "\n")
+    f.close()
+
 def crawl(s, u):
     print("Crawling...")
     page = requests.get(u).text
@@ -88,39 +101,43 @@ def crawl(s, u):
 def respond(submission):
     title_url = submission.url
     reply_text = crawl(submission, title_url)
-    reply_text += "\n\n*****\n\n^^^[Source code](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
+    reply_text += footer
     if reply_text[0:6] == "Sorry,":
         submission.mod.remove()
         submission.reply(reply_text).mod.distinguish()
         print("Removed (developer blacklist): " + submission.title)
-    elif reply_text == "incorrect link\n\n*****\n\n^^^[Creator](https://www.reddit.com/user/Swimmer249) ^^^|  ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)":
+    elif reply_text == "incorrect link" + footer:
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
         submission.reply(reply_text)
         print("Replied to: " + submission.title)
+    logID(submission.id)
 
 while True:
     try:
+        print("Initializing bot...")
         for submission in subreddit.stream.submissions():
-            responded = 0
+            if submission.is_self:
+                continue
             if submission.created < int(time.time()) - 86400:
-                responded = 1
-            elif submission.is_self:
-                responded = 1
-            elif submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
+                continue
+            if submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
+                if submission.id in open('postids.txt').read():
+                    continue
                 for top_level_comment in submission.comments:
                     try:
-                        if top_level_comment.author.name == "GPDBot":
-                            responded = 1
+                        if top_level_comment.author and top_level_comment.author.name == "GPDBot":
+                            logID(submission.id)
                             break
                     except AttributeError:
-                        responded = 0
-            else:
-                responded = 1
-            if responded == 1:
-                print("Skipping: " + submission.title)
-            else:
-                respond(submission)
+                        pass
+                else: # no break before, so no comment from GPDBot
+                    respond(submission)
+                    continue
     except (HTTPError, ConnectionError, Timeout):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
+
+    except praw.exceptions.APIException:
+        print ("rate limited, wait 5 seconds")
+        time.sleep(5)
