@@ -11,13 +11,19 @@ reddit = praw.Reddit(client_id=Config.cid,
                      username=Config.user)
 subreddit = reddit.subreddit('googleplaydeals')
 blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
-footer = "\n\n*****\n\n^^^[Source](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"
+footer = """
+
+*****
+
+^^^[Source](https://github.com/a-ton/gpd-bot)
+^^^|
+^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/68brod/)"""
 file = open("postids.txt","a+")
 file.close()
 def logID(postid):
     f = open("postids.txt","a+")
     f.write(postid + "\n")
-    f.close
+    f.close()
 
 def crawl(s, u):
     print("Crawling...")
@@ -88,7 +94,7 @@ def crawl(s, u):
 def respond(submission):
     title_url = submission.url
     reply_text = crawl(submission, title_url)
-    reply_text += footer;
+    reply_text += footer
     if reply_text[0:6] == "Sorry,":
         submission.mod.remove()
         submission.reply(reply_text).mod.distinguish()
