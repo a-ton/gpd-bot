@@ -110,25 +110,23 @@ while True:
     try:
         print("Initializing bot...")
         for submission in subreddit.stream.submissions():
-            responded = 0
             if submission.is_self:
-                responded = 1
-            elif submission.created < int(time.time()) - 86400:
-                responded = 1
-            elif submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
+                continue
+            if submission.created < int(time.time()) - 86400:
+                continue
+            if submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
                 if submission.id in open('postids.txt').read():
-                    responded = 1
-                else:
-                    for top_level_comment in submission.comments:
-                        try:
-                            if top_level_comment.author.name == "GPDBot":
-                                responded = 1
-                                logID(submission.id)
-                                break
-                        except AttributeError:
-                            responded = 0
-            if responded == 0:
-                respond(submission)
+                    continue
+                for top_level_comment in submission.comments:
+                    try:
+                        if top_level_comment.author and top_level_comment.author.name == "GPDBot":
+                            logID(submission.id)
+                            break
+                    except AttributeError:
+                        pass
+                else: # no break before, so no comment from GPDBot
+                    respond(submission)
+                    continue
     except (HTTPError, ConnectionError, Timeout):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
