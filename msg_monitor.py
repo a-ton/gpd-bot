@@ -1,6 +1,6 @@
 import time
 import praw
-from requests.exceptions import ConnectionError, HTTPError, Timeout
+from requests.exceptions import ConnectionError, HTTPError, Timeout, RequestException
 import requests
 import Config
 from bs4 import BeautifulSoup
@@ -80,7 +80,7 @@ while True:
                                 msg.reply("This still appears to be a deal, not marked as expired." + footer)
             except AttributeError:
                 print("error checking comment by: " + msg.author.name)
-    except (HTTPError, ConnectionError, Timeout):
+    except (HTTPError, ConnectionError, Timeout, RequestException):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
 
