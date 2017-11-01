@@ -1,7 +1,8 @@
-#### The Google Play Deals Bot was created to do two things for the /r/GooglePlayDeals subreddit:
+#### The Google Play Deals Bot does two things for the /r/GooglePlayDeals subreddit:
 
-* Respond to all app submissions on /r/GooglePlayDeals with information about the app found on the store page. 
-* Handle flairing deals when they are expired. 
+* Responds to all app submissions on /r/GooglePlayDeals with information about the app found on the store page. 
+* Flairs deals when they are expired. 
+* Flairs deals with a new or popular tag
 
 #### These are the current features but here are a few more I would like to implement:
 
@@ -14,7 +15,7 @@
 * reddit_response.py
   1. Monitors subreddit for new posts
   2. Scrape the google play link for info
-  3. Reply to post
+  3. Reply to post and add flair
   
 * msg_monitor.py
   1. Monitors inbox for unred comment replies
@@ -23,7 +24,7 @@
 
 ### Needed modules
 
-* PRAW 5.1+
+* PRAW 5.2+
 * bs4
 
 #### Other stuff
