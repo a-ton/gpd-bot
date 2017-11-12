@@ -9,8 +9,7 @@ reddit = praw.Reddit(client_id=Config.cid,
                      password=Config.password,
                      user_agent=Config.agent,
                      username=Config.user)
-subreddit = reddit.subreddit('googleplaydeals')
-blacklisted_devs = ["Ray Software", "Han Chang Lin", "Itypenow Apps", "Imorjeny"]
+subreddit = reddit.subreddit(Config.subreddit)
 def flair(app_rating, num_installs, sub):
     num_installs = num_installs[2:100]
     if num_installs in ['1 - 5', '5 - 10', '10 - 50', '50 - 100', '100 - 500', 'Couldn\'t get # of installs (probably a new app)']:
@@ -59,7 +58,7 @@ def crawl(s, u):
 
 	# get developer name
     dev = store_page.find("span", itemprop="name").string
-    if dev in blacklisted_devs:
+    if dev in Config.blacklisted_devs:
         return "Sorry, deals from " + dev + " have been blacklisted.\n\nHere is the full list of blacklisted devleopers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
 
 	# get last update date
