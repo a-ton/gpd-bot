@@ -1,7 +1,7 @@
 #### The Google Play Deals Bot does two things for the /r/GooglePlayDeals subreddit:
 
-* Responds to all app submissions on /r/GooglePlayDeals with information about the app found on the store page. 
-* Flairs deals when they are expired. 
+* Responds to all app submissions on /r/GooglePlayDeals with information about the app found on the store page 
+* Flairs deals when they are expired 
 * Flairs deals with a new or popular tag
 
 #### These are the current features but here are a few more I would like to implement:
