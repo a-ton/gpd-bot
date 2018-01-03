@@ -109,6 +109,7 @@ def respond(submission):
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
         submission.reply(reply_text)
+        submission.mod.approve()
         print("Replied to: " + submission.title)
     logID(submission.id)
 
