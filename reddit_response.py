@@ -12,9 +12,10 @@ reddit = praw.Reddit(client_id=Config.cid,
 subreddit = reddit.subreddit(Config.subreddit)
 def flair(app_rating, num_installs, sub):
     num_installs = num_installs[2:100]
-    if num_installs in ['1 - 5', '5 - 10', '10 - 50', '50 - 100', '100 - 500', 'Couldn\'t get # of installs (probably a new app)']:
+    inst = num_installs.split(" ")
+    if int(inst[0].replace(',', '')) <= 100:
         sub.mod.flair(text='New app', css_class=None)
-    elif num_installs not in ['500 - 1,000', '1,000 - 5,000', '5,000 - 10,000'] and app_rating[0:1] in ['4', '5']:
+    elif int(inst[0].replace(',', '')) >= 10000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
 footer = """
 
