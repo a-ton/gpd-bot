@@ -14,7 +14,7 @@ def flair(app_rating, num_installs, sub):
     num_installs = num_installs[2:100]
     if num_installs in ['1 - 5', '5 - 10', '10 - 50', '50 - 100', '100 - 500', 'Couldn\'t get # of installs (probably a new app)']:
         sub.mod.flair(text='New app', css_class=None)
-    elif num_installs not in ['500- 1,000', '1,000 - 5,000', '5,000 - 10,000'] and app_rating[0:1] in ['4', '5']:
+    elif num_installs not in ['500 - 1,000', '1,000 - 5,000', '5,000 - 10,000'] and app_rating[0:1] in ['4', '5']:
         sub.mod.flair(text= 'Popular app', css_class=None)
 footer = """
 
