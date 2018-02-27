@@ -13,7 +13,9 @@ subreddit = reddit.subreddit(Config.subreddit)
 def flair(app_rating, num_installs, sub):
     num_installs = num_installs[2:100]
     inst = num_installs.split(" ")
-    if int(inst[0].replace(',', '')) <= 100:
+    if (inst[0] == "Couldn't"):
+        return
+    elif int(inst[0].replace(',', '')) <= 100:
         sub.mod.flair(text='New app', css_class=None)
     elif int(inst[0].replace(',', '')) >= 10000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
