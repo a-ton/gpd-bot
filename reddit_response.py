@@ -114,7 +114,6 @@ def crawl(s, u):
     # get description
     desc = store_page.find("div", jsname="sngebd").get_text()
     flair(rating, installs, submission)
-    print 
     return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
