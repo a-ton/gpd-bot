@@ -11,11 +11,10 @@ reddit = praw.Reddit(client_id=Config.cid,
                      username=Config.user)
 subreddit = reddit.subreddit(Config.subreddit)
 def flair(app_rating, num_installs, sub):
-    num_installs = num_installs[2:100]
-    inst = num_installs.split(" ")
+    inst = num_installs.split("+")
     if (inst[0] == "Couldn't"):
         return
-    elif int(inst[0].replace(',', '')) <= 100:
+    elif int(inst[0].replace(',', '')) <= 500:
         sub.mod.flair(text='New app', css_class=None)
     elif int(inst[0].replace(',', '')) >= 10000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
@@ -38,36 +37,43 @@ def crawl(s, u):
     page = requests.get(u).text
     store_page = BeautifulSoup(page, "html.parser")
 
+    list_of_details = store_page.findAll(attrs={"class": "htlgb"})
+
 	# get app name
     try:
-        app_name = store_page.find("div", class_="id-app-title").string
+        app_name = store_page.find("h1", class_="AHFaub").string
     except AttributeError:
         return "incorrect link"
 
 
 	# get the number of downloads
     try:
-        installs = store_page.find("div", itemprop="numDownloads").string.rstrip()
+        installs = list_of_details[2].string
     except AttributeError:
         installs = "  Couldn't get # of installs (probably a new app)"
 
 	# get rating out of 5
-    temp = store_page.find("meta", itemprop="ratingValue")
     try:
-        rating = temp['content']
-        rating = rating[0:4] + "/5"
+        temp = store_page.find("div", class_="BHMmbe").string
+        rating = temp + "/5"
     except TypeError:
-        rating = "No rating!"
+        rating = "No ratings yet"
 
 	# get developer name
-    dev = store_page.find("span", itemprop="name").string
+    dev = store_page.find("a", class_="hrTbp R8zArc").string
     if dev in Config.blacklisted_devs:
         return "Sorry, deals from " + dev + " have been blacklisted.\n\nHere is the full list of blacklisted devleopers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
 
 	# get last update date
-    updated = store_page.find("div", itemprop="datePublished").string
+    updated = list_of_details[0].string
 
-	# get current price
+    # get size of app
+    app_size = list_of_details[1].string
+
+    # get IAP info
+    IAP_info = list_of_details[7].string
+
+    # get current price
     temp = store_page.find("meta", itemprop="price")
     current_price = temp['content']
     if current_price == "0":
@@ -75,30 +81,22 @@ def crawl(s, u):
 
 	# get full (normal) price
     try:
-        full_price = store_page.find("span", jsan="7.full-price").string
+        full_price = store_page.find("span", class_="LV0gI").string
     except AttributeError:
         full_price = current_price + " (can't get price in USD)"
 
     # find IAPs
-    iap_element = store_page.findAll(attrs={"class": "inapp-msg"})
-    if len(iap_element) > 0:
-        IAP = "Yes"
-    else:
+    iap_element = store_page.find("div", class_="rxic6")
+    if iap_element == None:
         IAP = "No"
+    else:
+        IAP = "Yes"
 
     # get description
-    desc = store_page.find("div", jsname="C4s9Ed").get_text()
-
-    # get download size? web page doesn't show this info, only mobile. leaving in case they add it back
-    #try:
-    #    file_size_element = store_page.find(attrs={"itemprop": "fileSize"})
-    #    file_size = file_size_element.getText()
-    #except AttributeError:
-    #    file_size = "this shit don't work"
-
-	# mash all that info together into a comment (this is really ugly I know)
+    desc = store_page.find("div", jsname="sngebd").get_text()
     flair(rating, installs, submission)
-    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs[2:100] + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + "  \nShort description: " + desc[0:400] + "...  \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+
+    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + ", " + IAP_info + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
     title_url = submission.url
