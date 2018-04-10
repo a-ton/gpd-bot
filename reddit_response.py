@@ -100,13 +100,21 @@ def crawl(s, u):
     # get IAP info
     if (IAP == "Yes"):
         IAP_info = ", "
-        IAP_info += list_of_details[7].string
+        i = 3
+        while i < 9:
+            string = list_of_details[i].string
+            i = i + 1
+            if string == None:
+                continue
+            if '$' in string:
+                IAP_info += list_of_details[i].string
+                i = 10
     else:
         IAP_info = ""
     # get description
     desc = store_page.find("div", jsname="sngebd").get_text()
     flair(rating, installs, submission)
-
+    print 
     return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
