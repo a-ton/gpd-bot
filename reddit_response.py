@@ -77,7 +77,6 @@ def crawl(s, u):
         int(inst)
     except ValueError:
         app_size = "Not given"
-    print (app_size)
 
     # get current price
     temp = store_page.find("meta", itemprop="price")
