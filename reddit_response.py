@@ -107,7 +107,7 @@ def crawl(s, u):
             if string == None:
                 continue
             if '$' in string:
-                IAP_info += list_of_details[i].string
+                IAP_info += string
                 i = 10
     else:
         IAP_info = ""
