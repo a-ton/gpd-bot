@@ -70,9 +70,6 @@ def crawl(s, u):
     # get size of app
     app_size = list_of_details[1].string
 
-    # get IAP info
-    IAP_info = list_of_details[7].string
-
     # get current price
     temp = store_page.find("meta", itemprop="price")
     current_price = temp['content']
@@ -91,6 +88,10 @@ def crawl(s, u):
         IAP = "No"
     else:
         IAP = "Yes"
+    
+    # get IAP info
+    if (IAP == "Yes"):
+        IAP_info = list_of_details[7].string
 
     # get description
     desc = store_page.find("div", jsname="sngebd").get_text()
