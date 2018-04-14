@@ -74,6 +74,7 @@ def crawl(s, u):
     app_size = list_of_details[1].string
     try:
         inst = app_size.replace('M', '')
+        inst = inst.replace('.', '')
         int(inst)
     except ValueError:
         app_size = "Not given"
