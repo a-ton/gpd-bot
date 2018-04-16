@@ -47,13 +47,12 @@ def crawl(s, u):
 
 
 	# get the number of downloads
-    installs = list_of_details[2].string
+    installs = list_of_details[5].string
     try:
         inst = installs.split("+")
         int(inst[0].replace(',', ''))
     except ValueError:
-        installs = list_of_details[1].string
-        
+        installs = list_of_details[3].string
 
 	# get rating out of 5
     try:
@@ -102,14 +101,14 @@ def crawl(s, u):
     if (IAP == "Yes"):
         IAP_info = ", "
         i = 3
-        while i < 9:
+        while i < 19:
             string = list_of_details[i].string
-            i = i + 1
+            i = i + 2
             if string == None:
                 continue
             if '$' in string:
                 IAP_info += string
-                i = 10
+                i = 20
     else:
         IAP_info = ""
     # get description
