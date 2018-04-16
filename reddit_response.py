@@ -68,10 +68,10 @@ def crawl(s, u):
         return "Sorry, deals from " + dev + " have been blacklisted.\n\nHere is the full list of blacklisted devleopers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
 
 	# get last update date
-    updated = list_of_details[0].string
+    updated = list_of_details[1].string
 
     # get size of app
-    app_size = list_of_details[1].string
+    app_size = list_of_details[3].string
     try:
         inst = app_size.replace('M', '')
         inst = inst.replace('.', '')
