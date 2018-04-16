@@ -59,7 +59,7 @@ def crawl(s, u):
     try:
         temp = store_page.find("div", class_="BHMmbe").string
         rating = temp + "/5"
-    except TypeError:
+    except AttributeError:
         rating = "No ratings yet"
 
 	# get developer name
