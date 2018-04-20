@@ -104,6 +104,7 @@ def crawl(s, u):
         while i < 21:
             string = list_of_details[i].string
             if string == None:
+		i = i + 1
                 continue
             if '$' in string:
                 IAP_info += string
