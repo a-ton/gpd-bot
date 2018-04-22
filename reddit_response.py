@@ -94,8 +94,18 @@ def crawl(s, u):
     iap_element = store_page.find("div", class_="rxic6")
     if iap_element == None:
         IAP = "No"
+        Ads = "No"
     else:
-        IAP = "Yes"
+        if "Offers" in iap_element.string:
+            IAP = "Yes"
+            both = store_page.find("div", class_="pQIMjf")
+            if both == None:
+                Ads = "No"
+            else:
+                Ads = "Yes"
+        else:
+            Ads = "Yes"
+            IAP = "No"
 
     # get IAP info
     if (IAP == "Yes"):
@@ -116,7 +126,7 @@ def crawl(s, u):
     # get description
     desc = store_page.find("div", jsname="sngebd").get_text()
     flair(rating, installs, submission)
-    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
     title_url = submission.url
