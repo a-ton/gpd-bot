@@ -22,7 +22,7 @@ def check_price(s, u):
 
 	# get full (normal) price
     try:
-        full_price = store_page.find("span", jsan="7.full-price").string
+        full_price = store_page.find("span", class_="LV0gI").string
         if full_price != current_price:
             return False
     except AttributeError:
