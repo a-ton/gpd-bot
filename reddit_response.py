@@ -99,16 +99,18 @@ def crawl(s, u):
 
     # get IAP info
     if (IAP == "Yes"):
-        IAP_info = ", "
         i = 3
+        IAP_info = ""
         while i < 17:
             string = list_of_details[i].string
-            i = i + 2
             if string == None:
+                i = i + 2
                 continue
             if '$' in string:
+                IAP_info = ", "
                 IAP_info += string
                 i = 20
+            i = i + 2
     else:
         IAP_info = ""
     # get description
