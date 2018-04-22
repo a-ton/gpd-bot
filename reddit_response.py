@@ -101,15 +101,14 @@ def crawl(s, u):
     if (IAP == "Yes"):
         IAP_info = ", "
         i = 3
-        while i < 21:
+        while i < 17:
             string = list_of_details[i].string
+            i = i + 2
             if string == None:
-                i = i + 1
                 continue
             if '$' in string:
                 IAP_info += string
                 i = 20
-            i = i + 1
     else:
         IAP_info = ""
     # get description
