@@ -92,7 +92,7 @@ def crawl(s, u):
 
     # find IAPs
     iap_element = store_page.find("div", class_="rxic6")
-    if iap_element == None:
+    if iap_element == None or iap_element.string == None:
         IAP = "No"
         Ads = "No"
     else:
