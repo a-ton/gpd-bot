@@ -87,16 +87,19 @@ def crawl(s, u):
     i = 3
     while i < 13:
         app_size = list_of_details[i].string
-        if app_name == None:
+        if app_size == None:
             i = i + 2
         else:
             if "M" in app_size:
                 i = 77
             i = i + 2
     try:
-        inst = app_size.replace('M', '')
-        inst = inst.replace('.', '')
-        int(inst)
+        if app_size == None:
+            app_size = "Not given"
+        else:
+            inst = app_size.replace('M', '')
+            inst = inst.replace('.', '')
+            int(inst)
     except ValueError:
         app_size = "Not given"
 
