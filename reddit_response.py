@@ -47,12 +47,18 @@ def crawl(s, u):
 
 
 	# get the number of downloads
-    installs = list_of_details[5].string
-    try:
-        inst = installs.split("+")
-        int(inst[0].replace(',', ''))
-    except ValueError:
-        installs = list_of_details[3].string
+    i = 3
+    while i < 13:
+        installs = list_of_details[i].string
+        if installs == None:
+            i = i + 2
+        else:
+            try:
+                inst = installs.split("+")
+                int(inst[0].replace(',', ''))
+                i = 77
+            except ValueError:
+                i = i + 2
 
 	# get rating out of 5
     try:
@@ -67,10 +73,26 @@ def crawl(s, u):
         return "Sorry, deals from " + dev + " have been blacklisted.\n\nHere is the full list of blacklisted devleopers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
 
 	# get last update date
-    updated = list_of_details[1].string
+    i = 1
+    while i < 13:
+        updated = list_of_details[i].string
+        if updated == None:
+            i = i + 2
+        else:
+            if "201" in updated:
+                i = 77
+            i = i + 2
 
     # get size of app
-    app_size = list_of_details[3].string
+    i = 3
+    while i < 13:
+        app_size = list_of_details[i].string
+        if app_name == None:
+            i = i + 2
+        else:
+            if "M" in app_size:
+                i = 77
+            i = i + 2
     try:
         inst = app_size.replace('M', '')
         inst = inst.replace('.', '')
