@@ -1,6 +1,6 @@
 import time
 import praw
-from requests.exceptions import ConnectionError, HTTPError, Timeout, RequestException
+import prawcore
 import requests
 import Config
 from bs4 import BeautifulSoup
@@ -193,7 +193,7 @@ while True:
                 else: # no break before, so no comment from GPDBot
                     respond(submission)
                     continue
-    except (HTTPError, ConnectionError, Timeout, RequestException):
+    except (prawcore.exceptions.RequestException, prawcore.exceptions.ResponseException):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
 

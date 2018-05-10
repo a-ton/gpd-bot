@@ -80,7 +80,7 @@ while True:
                                 msg.reply("This still appears to be a deal, not marked as expired." + footer)
             except AttributeError:
                 print("error checking comment by: " + msg.author.name)
-    except prawcore.exceptions.RequestException:
+    except (prawcore.exceptions.RequestException, prawcore.exceptions.ResponseException):
         print ("Error connecting to reddit servers. Retrying in 5 minutes...")
         time.sleep(300)
 
