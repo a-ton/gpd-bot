@@ -158,6 +158,8 @@ def crawl(s, u):
 
 def respond(submission):
     title_url = submission.url
+    title_url = title_url.split('&')
+    title_url = title_url[0]
     reply_text = crawl(submission, title_url)
     reply_text += footer
     if reply_text[0:6] == "Sorry,":
