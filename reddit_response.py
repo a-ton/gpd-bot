@@ -152,9 +152,12 @@ def crawl(s, u):
     else:
         IAP_info = ""
     # get description
-    desc = store_page.find("div", jsname="sngebd").get_text()
+    desc_strings = store_page.find("div", jsname="sngebd").stripped_strings
+    desc = ''
+    for string in desc_strings:
+        desc += '    ' + string + '\n'
     flair(rating, installs, submission)
-    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description: " + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description:\n\n\n\n" + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
     title_url = submission.url
