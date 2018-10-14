@@ -24,7 +24,7 @@ footer = """
 
 ^^^[Source](https://github.com/a-ton/gpd-bot)
 ^^^|
-^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/7cyrfw)"""
+^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
 file = open("postids.txt","a+")
 file.close()
 def logID(postid):
