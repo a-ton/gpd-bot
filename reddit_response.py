@@ -154,8 +154,21 @@ def crawl(s, u):
     # get description
     desc_strings = store_page.find("div", jsname="sngebd").stripped_strings
     desc = ''
-    for string in desc_strings:
-        desc += '    ' + string + '\n'
+    for s in desc_strings:
+        temp = s
+        while len(temp) > 75:
+            c = temp[74]
+            i = 75
+            while c != ' ' and c != '\n':
+                try:
+                    c = temp[i]
+                except IndexError:
+                    i -= 1
+                    break
+                i += 1 
+            desc += '    ' + temp[0:i] + '\n'
+            temp = temp[i:]
+        desc += '    ' + temp + '\n'
     flair(rating, installs, submission)
     return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description:\n\n\n\n" + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
