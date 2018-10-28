@@ -25,8 +25,9 @@ footer = """
 ^^^[Source](https://github.com/a-ton/gpd-bot)
 ^^^|
 ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
-file = open("postids.txt","a+")
-file.close()
+    # make an empty file for first run
+f = open("postids.txt","a+")
+f.close()
 def logID(postid):
     f = open("postids.txt","a+")
     f.write(postid + "\n")
@@ -151,6 +152,7 @@ def crawl(s, u):
             i = i + 2
     else:
         IAP_info = ""
+    
     # get description
     desc_strings = store_page.find("div", jsname="sngebd").stripped_strings
     desc = ''
@@ -158,17 +160,23 @@ def crawl(s, u):
         temp = s
         while len(temp) > 75:
             c = temp[74]
-            i = 75
-            while c != ' ' and c != '\n':
+            i = 74
+            while c != ' ':
+                i += 1 
                 try:
                     c = temp[i]
                 except IndexError:
                     i -= 1
                     break
-                i += 1 
-            desc += '    ' + temp[0:i] + '\n'
+            i += 1
+            desc += '    ' + temp[0:i]
             temp = temp[i:]
-        desc += '    ' + temp + '\n'
+            if (len(temp) >= 20):
+                desc += '\n'
+        if (len(temp) < 20):
+            desc += temp + '\n'
+        else:
+            desc += '    ' + temp + '\n'
     flair(rating, installs, submission)
     return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description:\n\n\n\n" + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
