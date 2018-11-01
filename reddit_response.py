@@ -105,8 +105,11 @@ def crawl(s, u):
         app_size = "Not given"
 
     # get current price
-    temp = store_page.find("meta", itemprop="price")
-    current_price = temp['content']
+    try:
+        temp = store_page.find("meta", itemprop="price")
+        current_price = temp['content']
+    except TypeError:
+        return "incorrect link"
     if current_price == "0":
         current_price = "Free"
 
