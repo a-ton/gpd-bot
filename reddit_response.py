@@ -159,29 +159,14 @@ def crawl(s, u):
     # get description
     desc_strings = store_page.find("div", jsname="sngebd").stripped_strings
     desc = ''
+    totalChar = 0
     for s in desc_strings:
-        temp = s
-        while len(temp) > 75:
-            c = temp[74]
-            i = 74
-            while c != ' ':
-                i += 1 
-                try:
-                    c = temp[i]
-                except IndexError:
-                    i -= 1
-                    break
-            i += 1
-            desc += '    ' + temp[0:i]
-            temp = temp[i:]
-            if (len(temp) >= 20):
-                desc += '\n'
-        if (len(temp) < 20):
-            desc += temp + '\n'
-        else:
-            desc += '    ' + temp + '\n'
+        desc += '>' + s + '\n'
+        totalChar += len(s)
+        if totalChar >= 400:
+            break
     flair(rating, installs, submission)
-    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description:\n\n\n\n" + desc[0:400] + "...  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+    return "Info for " + app_name + ":\n\n" + "Current price (USD): " + current_price + " was " + full_price + "  \nDeveloper: " + dev + "  \nRating: " + rating + "  \nInstalls: " + installs + "  \n Size: " + app_size + "  \nLast updated: " + updated + "  \nContains IAPs: " + IAP + IAP_info + "  \nContains Ads: " + Ads + "  \nShort description:\n\n\n\n" + desc + "  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
 
 def respond(submission):
     title_url = submission.url
