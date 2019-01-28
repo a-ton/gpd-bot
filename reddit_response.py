@@ -161,7 +161,7 @@ def crawl(s, u):
     desc = ''
     totalChar = 0
     for s in desc_strings:
-        desc += '>' + s + '\n'
+        desc += '>' + s + '  \n'
         totalChar += len(s)
         if totalChar >= 400:
             break
