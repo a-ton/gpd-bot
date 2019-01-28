@@ -26,6 +26,31 @@
 * PRAW 5.2.0+
 * bs4
 
+### Example response:
+>Info for Lucid Launcher Pro:  
+>Current price (USD): $1.49 was $2.99  
+>Developer: Lucid Dev Team  
+>Rating: 4.4/5  
+>Installs: 10,000+  
+>Size: 3.6M  
+>Last updated: January 23, 2019  
+>Contains IAPs: No  
+>Contains Ads: No  
+>Short description:
+
+>>Lucid Launcher Pro unlocks various features for Lucid Launcher and will also receive updates earlier than the free version. If you want to request a feature please request at our Google+ page or Contact us via E-mail.  
+>>Pro Version Unlocks:  
+>>★Custom Search Text (Look at screenshots)  
+>>★Ability to hide app label in favorites bar  
+>>★More Page Transition Animations  
+>>★Vertical Page Transitions  
+>>★More Home Pages  
+>>★Custom Sidebar Theme  
+
+>(footer)
+
 #### Other stuff
 
-In order to run the bot, you need to fill out the Config.py file but currently we don't need another version of the bot running around so that probably won't matter. I'm uploading this to github for better version control and also because a few users have wanted to view the source of the bot. Any help would be appreciated if you want to. (first time writing Python) **Feel free to submit issues for stuff you want to see added and I'll let you know if it's feasible!**
+In order to run the bot, you need to fill out the Config.py file but currently we don't need another version of the bot running around so that probably won't matter. I'm uploading this to github for better version control and also because a few users have wanted to view the source of the bot. Any help would be appreciated if you want to contribute to the project. 
+
+**Feel free to submit issues for ideas you have or issues with the bot!**
