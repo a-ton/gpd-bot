@@ -6,8 +6,7 @@
 
 #### These are the current features but here are a few more I would like to implement:
 
-* Logging (errors)
-* Getting links from text posts
+* Logging (errors) - Sort of implemented
 
 ### General workflow:
 
