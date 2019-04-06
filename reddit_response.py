@@ -3,6 +3,7 @@ import praw
 import prawcore
 import requests
 import Config
+import re
 from bs4 import BeautifulSoup
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
@@ -75,7 +76,6 @@ class AppInfo:
     def getSize(self):
         i = 3
         while i < 17:
-            print(self.list_of_details[i].string)
             app_size = self.list_of_details[i].string
             if app_size:
                 if "M" in app_size and app_size[0] != 'M':  # makes sure that it doesn't grab March
@@ -176,6 +176,7 @@ class AppInfo:
             self.name = self.getName()
         except LinkError:
             self.invalid = True
+            return
         self.downloads = self.getNumDownloads()
         self.rating = self.getRating()
         try:
@@ -204,14 +205,6 @@ def flair(app_rating, num_installs, sub):
     elif int(inst[0].replace(',', '')) >= 10000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
 
-footer = """
-
-*****
-
-^^^[Source](https://github.com/a-ton/gpd-bot)
-^^^|
-^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
-
 # make an empty file for first run
 f = open("postids.txt","a+")
 f.close()
@@ -220,29 +213,69 @@ def logID(postid):
     f.write(postid + "\n")
     f.close()
 
-def crawl(s, u):
-    print("Crawling...")
-    app = AppInfo(s, u)
-    if (app.blacklist):
-        return "Sorry, deals from this developer have been blacklisted.\n\nHere is the full list of blacklisted devleopers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
-    if (app.invalid):
-        return "incorrect link"
-    flair(app.rating, app.downloads, s)
-    return "Info for " + app.name + ":\n\n" + "Current price (USD): " + app.current_price + " was " + app.full_price + "  \nDeveloper: " + app.developer + "  \nRating: " + app.rating + "  \nInstalls: " + app.downloads + "  \n Size: " + app.size + "  \nLast updated: " + app.last_update + "  \nContains IAPs: " + app.IAPs + app.IAP_info + "  \nContains Ads: " + app.ads + "  \nShort description:\n\n\n\n" + app.desc + "  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
-
 def respond(submission):
-    title_url = submission.url
+    footer = """
+
+*****
+
+^^^[Source](https://github.com/a-ton/gpd-bot)
+^^^|
+^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
+
+    if submission.is_self:
+        urls = re.findall('(?:(?:https?):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', submission.selftext)
+        if len(urls) == 0:
+            print("NO LINK FOUND skipping: " + submission.title)
+            return
+        #  get all URLs, add them to a vector full of AppInfo objects, change format based on how many URLs there are
+    
+    if submission.is_self and len(urls) == 1:
+        title_url = urls[0]
+    else:         
+        title_url = submission.url
+    if submission.is_self and len(urls) > 1:
+        urls_checked = 0
+        reply_text = ""
+        for url in urls:
+            if urls_checked > 10:
+                reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
+                break
+            app = AppInfo(submission, url)
+            if app.blacklist:
+                reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
+                submission.mod.remove()
+                submission.reply(reply_text).mod.distinguish()
+                print("Removed (developer blacklist): " + submission.title)
+                return
+            if app.invalid:
+                print("Invalid url: " + url)
+                continue
+            urls_checked += 1
+            reply_text += "Info for [" + app.name + "](" + url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
+        reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+        reply_text += footer
+        submission.reply(reply_text)
+        submission.mod.approve()
+        print("Replied to: " + submission.title)
+        logID(submission.id)
+        return 
+
     title_url = title_url.split('&')
     title_url = title_url[0]
-    reply_text = crawl(submission, title_url)
-    reply_text += footer
-    if reply_text[0:6] == "Sorry,":
+
+    app = AppInfo(submission, title_url)
+    flair(app.rating, app.downloads, submission)
+
+    if app.blacklist:
+        reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
         submission.mod.remove()
         submission.reply(reply_text).mod.distinguish()
         print("Removed (developer blacklist): " + submission.title)
-    elif reply_text == "incorrect link" + footer:
+    elif app.invalid:
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
+        reply_text = "Info for " + app.name + ":\n\n" + "Current price (USD): " + app.current_price + " was " + app.full_price + "  \nDeveloper: " + app.developer + "  \nRating: " + app.rating + "  \nInstalls: " + app.downloads + "  \nSize: " + app.size + "  \nLast updated: " + app.last_update + "  \nContains IAPs: " + app.IAPs + app.IAP_info + "  \nContains Ads: " + app.ads + "  \nShort description:\n\n\n\n" + app.desc + "  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+        reply_text += footer
         submission.reply(reply_text)
         submission.mod.approve()
         print("Replied to: " + submission.title)
@@ -252,8 +285,6 @@ while True:
     try:
         print("Initializing bot...")
         for submission in subreddit.stream.submissions():
-            if submission.is_self:
-                continue
             if submission.created < int(time.time()) - 86400:
                 continue
             if submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
@@ -274,5 +305,5 @@ while True:
         time.sleep(300)
 
     except praw.exceptions.APIException:
-        print ("rate limited, wait 5 seconds")
+        print ("Rate limited, waiting 5 seconds")
         time.sleep(5)
