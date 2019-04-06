@@ -13,6 +13,8 @@ reddit = praw.Reddit(client_id=Config.cid,
                      username=Config.user)
 def check_price(s, u):
     print("Checking price")
+    if s.is_self:
+        return True
     page = requests.get(u).text
     store_page = BeautifulSoup(page, "html.parser")
 
