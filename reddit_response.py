@@ -147,10 +147,10 @@ class AppInfo:
             if string == None:
                 i = i + 2
                 continue
-            if '$' in string:
+            if "per item" in string:
                 IAP_info = ", "
                 IAP_info += string
-                i = 20
+                return IAP_info
             i = i + 2
         return IAP_info
 
