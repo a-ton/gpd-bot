@@ -229,17 +229,22 @@ def respond(submission):
             return
         #  get all URLs, add them to a vector full of AppInfo objects, change format based on how many URLs there are
     
-    if submission.is_self and len(urls) == 1:
-        title_url = urls[0]
+    # remove duplicates
+    unique_urls = []
+    for url in urls:
+        if url in unique_urls:
+            continue
+        else:
+            unique_urls.append(url)
+    
+    if submission.is_self and len(unique_urls) == 1:
+        title_url = unique_urls[0]
     else:         
         title_url = submission.url
-    if submission.is_self and len(urls) > 1:
+    if submission.is_self and len(unique_urls) > 1:
         urls_checked = 0
         reply_text = ""
-        prev_url = "yee" # lazy way of removing duplicates
-        for url in urls:
-            if url == prev_url:
-                continue
+        for unique_urls in urls:
             if urls_checked > 10:
                 reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
                 break
@@ -255,14 +260,20 @@ def respond(submission):
                 continue
             urls_checked += 1
             reply_text += "Info for [" + app.name + "](" + url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
-            prev_url = url
+        
+        if urls_checked == 0:
+            print("All invalid links, skipping: " + submission.title)
+            return
+        
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
         reply_text += footer
+        
         submission.reply(reply_text)
         submission.mod.approve()
+        
         print("Replied to: " + submission.title)
         logID(submission.id)
-        return 
+        return
 
     title_url = title_url.split('&')
     title_url = title_url[0]
