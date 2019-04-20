@@ -223,7 +223,7 @@ def respond(submission):
 ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
 
     if submission.is_self:
-        urls = re.findall(r'(?:(?:https?):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', submission.selftext)
+        urls = re.findall('(?:(?:https?):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', submission.selftext)
         if len(urls) == 0:
             print("NO LINK FOUND skipping: " + submission.title)
             return
