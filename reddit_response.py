@@ -227,44 +227,51 @@ def respond(submission):
         if len(urls) == 0:
             print("NO LINK FOUND skipping: " + submission.title)
             return
-        #  get all URLs, add them to a vector full of AppInfo objects, change format based on how many URLs there are
-    
-    # remove duplicates
+
+    # remove duplicate URLs
     unique_urls = []
     for url in urls:
         if url in unique_urls:
             continue
         else:
             unique_urls.append(url)
-    
-    if submission.is_self and len(unique_urls) == 1:
-        title_url = unique_urls[0]
-    else:         
-        title_url = submission.url
-    if submission.is_self and len(unique_urls) > 1:
-        urls_checked = 0
+
+    # find apps that we can respond to
+    valid_apps = []
+    for url in unique_urls:
+        app = AppInfo(submission, url)
+        if app.invalid:
+            print("Invalid url: " + url)
+            continue
+        valid_apps.append(app)
+        if len(valid_apps) >= 10:
+            break
+
+    if not submission.is_self:
+        app = AppInfo(submission, submission.url)
+
+    if len(valid_apps) == 1:
+        app = valid_apps[0]
+
+    if submission.is_self and len(valid_apps) == 0:
+        print("All invalid links, skipping: " + submission.title)
+        logID(submission.id)
+        return
+        
+    if len(valid_apps) > 1:
         reply_text = ""
-        for unique_urls in urls:
-            if urls_checked > 10:
-                reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
-                break
-            app = AppInfo(submission, url)
+        for app_num in range(10):
+            app = valid_apps[app_num]
             if app.blacklist:
                 reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
                 submission.mod.remove()
                 submission.reply(reply_text).mod.distinguish()
                 print("Removed (developer blacklist): " + submission.title)
+                logID(submission.id)
                 return
-            if app.invalid:
-                print("Invalid url: " + url)
-                continue
-            urls_checked += 1
             reply_text += "Info for [" + app.name + "](" + url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
-        
-        if urls_checked == 0:
-            print("All invalid links, skipping: " + submission.title)
-            return
-        
+        if len(valid_apps) >= 10:
+            reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
         reply_text += footer
         
@@ -275,10 +282,6 @@ def respond(submission):
         logID(submission.id)
         return
 
-    title_url = title_url.split('&')
-    title_url = title_url[0]
-
-    app = AppInfo(submission, title_url)
     if not app.invalid:
         flair(app.rating, app.downloads, submission)
 
