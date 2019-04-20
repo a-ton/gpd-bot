@@ -236,7 +236,10 @@ def respond(submission):
     if submission.is_self and len(urls) > 1:
         urls_checked = 0
         reply_text = ""
+        prev_url = "yee" # lazy way of removing duplicates
         for url in urls:
+            if url == prev_url:
+                continue
             if urls_checked > 10:
                 reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
                 break
@@ -252,6 +255,7 @@ def respond(submission):
                 continue
             urls_checked += 1
             reply_text += "Info for [" + app.name + "](" + url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
+            prev_url = url
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
         reply_text += footer
         submission.reply(reply_text)
