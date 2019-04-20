@@ -268,7 +268,8 @@ def respond(submission):
     title_url = title_url[0]
 
     app = AppInfo(submission, title_url)
-    flair(app.rating, app.downloads, submission)
+    if not app.invalid:
+        flair(app.rating, app.downloads, submission)
 
     if app.blacklist:
         reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
