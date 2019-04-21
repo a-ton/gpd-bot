@@ -221,11 +221,13 @@ def respond(submission):
 ^^^[Source](https://github.com/a-ton/gpd-bot)
 ^^^|
 ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
-
+    
+    urls = []
     if submission.is_self:
         urls = re.findall('(?:(?:https?):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', submission.selftext)
         if len(urls) == 0:
             print("NO LINK FOUND skipping: " + submission.title)
+            logID(submission.id)
             return
 
     # remove duplicate URLs
