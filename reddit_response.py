@@ -110,7 +110,7 @@ class AppInfo:
         return full_price
 
     def getIAPs(self):
-        iap_element = self.store_page.find("div", class_="rxic6")
+        iap_element = self.store_page.find("div", class_="bSIuKf")
         if iap_element == None:
             IAP = "No"
         elif iap_element.string == None:
@@ -123,14 +123,14 @@ class AppInfo:
         return IAP
 
     def getAds(self):
-        iap_element = self.store_page.find("div", class_="rxic6")
+        iap_element = self.store_page.find("div", class_="bSIuKf")
         if iap_element == None:
             Ads = "No"
         elif iap_element.string == None:
             Ads = "Yes"
         else:
             if "Offers" in iap_element.string:
-                both = self.store_page.find("div", class_="pQIMjf")
+                both = self.store_page.find("div", class_="aEKMHc")
                 if both == None:
                     Ads = "No"
                 else:
@@ -142,7 +142,7 @@ class AppInfo:
     def getIAPInfo(self):
         i = 3
         IAP_info = ""
-        while i < 17:
+        while i < 23:
             string = self.list_of_details[i].string
             if string == None:
                 i = i + 2
