@@ -262,7 +262,9 @@ def respond(submission):
         
     if len(valid_apps) > 1:
         reply_text = ""
-        for app_num in range(10):
+        for app_num in range(len(valid_apps)):
+            if (app_num >= 10):
+                break
             app = valid_apps[app_num]
             if app.blacklist:
                 reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
