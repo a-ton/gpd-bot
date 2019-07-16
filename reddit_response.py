@@ -194,6 +194,7 @@ class AppInfo:
         else:
             self.IAP_info = ""
         self.desc = self.getDescription()
+        self.url = url
     
 
 def flair(app_rating, num_installs, sub):
