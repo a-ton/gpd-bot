@@ -273,7 +273,7 @@ def respond(submission):
                 print("Removed (developer blacklist): " + submission.title)
                 logID(submission.id)
                 return
-            reply_text += "Info for [" + app.name + "](" + url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
+            reply_text += "Info for [" + app.name + "](" + app.url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
         if len(valid_apps) >= 10:
             reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
