@@ -5,7 +5,7 @@ import requests
 import Config
 from bs4 import BeautifulSoup
 responded = 0
-footer = "\n\n*****\n\n^^^[Source](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"
+footer = "\n\n*****\n\n^^^[Source](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/message/compose?to=Swimmer249)"
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
                      password=Config.password,

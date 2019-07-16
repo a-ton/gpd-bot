@@ -221,7 +221,7 @@ def respond(submission):
 
 ^^^[Source](https://github.com/a-ton/gpd-bot)
 ^^^|
-^^^[Suggestions?](https://www.reddit.com/r/GPDBot/comments/9o59m0/)"""
+^^^[Suggestions?](https://www.reddit.com/message/compose?to=Swimmer249)"""
     
     urls = []
     if submission.is_self:
