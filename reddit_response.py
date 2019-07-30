@@ -4,6 +4,7 @@ import prawcore
 import requests
 import Config
 import re
+import permissions_getter
 from bs4 import BeautifulSoup
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
@@ -154,6 +155,10 @@ class AppInfo:
             i = i + 2
         return IAP_info
 
+    def getPermissions(self):
+        temp = self.url.split('?')
+        return permissions_getter.getPerms(temp[1][3:])
+
     def getDescription(self):
         desc_strings = self.store_page.find("div", jsname="sngebd").stripped_strings
         desc = ''
@@ -195,6 +200,7 @@ class AppInfo:
             self.IAP_info = ""
         self.desc = self.getDescription()
         self.url = url
+        self.permissions = self.getPermissions()
     
 
 def flair(app_rating, num_installs, sub):
@@ -274,7 +280,7 @@ def respond(submission):
                 print("Removed (developer blacklist): " + submission.title)
                 logID(submission.id)
                 return
-            reply_text += "Info for [" + app.name + "](" + app.url + "): Price (USD): " + app.current_price + " was " + app.full_price + " | Rating: " + app.rating + " | Installs: " + app.downloads + " | Size: " + app.size + " | IAPs/Ads: " + app.IAPs + app.IAP_info + "/" + app.ads + "\n\n*****\n\n"
+            reply_text += "Info for [%s](%s): Price (USD): %s was %s | Rating: %s | Installs: %s | Size: %s | IAPs/Ads: %s%s/%s\n\n*****\n\n" % (app.name, app.url, app.current_price, app.full_price, app.rating, app.installs, app.size, app.IAPs, app.IAP_info, app.ads)
         if len(valid_apps) >= 10:
             reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
@@ -298,7 +304,24 @@ def respond(submission):
     elif app.invalid:
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
-        reply_text = "Info for " + app.name + ":\n\n" + "Current price (USD): " + app.current_price + " was " + app.full_price + "  \nDeveloper: " + app.developer + "  \nRating: " + app.rating + "  \nInstalls: " + app.downloads + "  \nSize: " + app.size + "  \nLast updated: " + app.last_update + "  \nContains IAPs: " + app.IAPs + app.IAP_info + "  \nContains Ads: " + app.ads + "  \nShort description:\n\n\n\n" + app.desc + "  \n\n***** \n\nIf this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
+        reply_text = """Info for %s:
+
+Current price (USD): %s was %s  
+Developer: %s  
+Rating: %s  
+Installs: %s  
+Size: %s  
+Last updated: %s  
+Contains IAPs: %s%s  
+Contains Ads: %s  
+Permissions: %s  
+Short description:  
+
+%s  
+
+***** 
+
+If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAPs, app.IAP_info, app.ads, app.permissions, app.desc)
         reply_text += footer
         submission.reply(reply_text)
         submission.mod.approve()
