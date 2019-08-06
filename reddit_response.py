@@ -157,7 +157,7 @@ class AppInfo:
 
     def getPermissions(self):
         temp = self.url.split('?')
-        stripped_id = temp.split('&')
+        stripped_id = temp[1].split('&')
         return permissions_getter.getPerms(stripped_id[0][3:])
 
     def getDescription(self):
