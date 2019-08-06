@@ -249,9 +249,10 @@ def respond(submission):
     # find apps that we can respond to
     valid_apps = []
     for url in unique_urls:
+        if not "http" in url:
+            continue
         app = AppInfo(submission, url)
         if app.invalid:
-            print("Invalid url: " + url)
             continue
         valid_apps.append(app)
         if len(valid_apps) >= 10:
