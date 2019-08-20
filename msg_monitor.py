@@ -58,17 +58,17 @@ while True:
                             if text.index("oops") > -1:
                                 oops = True
                         except ValueError:
-                            print("not oops")
+                            pass
                         try:
                             if text.index("expired") > -1:
                                 expired = True
                         except ValueError:
-                            print("not about expiry")
+                            pass
                         if oops:
                             msg.mark_read()
                             msg.submission.mod.flair(text=None, css_class=None)
                             print("unflairing... responded to: " + msg.author.name)
-                            msg.reply("Flair removed. Please report the user who originally marked this deal as expired." + footer)
+                            msg.reply("Flair removed." + footer)
                         elif expired:
                             msg.mark_read()
                             title_url = msg.submission.url
@@ -79,7 +79,7 @@ while True:
                                 msg.reply("Deal marked as expired. Reply with \"oops\" if this is incorrect." + footer)
                             else:
                                 print("not expired... responded to: " + msg.author.name)
-                                msg.reply("This still appears to be a deal, not marked as expired." + footer)
+                                msg.reply("This still appears to be a deal, not marked as expired. The deal is probably not availible in your region. Please avoid marking deals as expired unless you are 100% sure they are." + footer)
             except AttributeError:
                 print("error checking comment by: " + msg.author.name)
     except (prawcore.exceptions.RequestException, prawcore.exceptions.ResponseException):
