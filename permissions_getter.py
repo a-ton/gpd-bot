@@ -28,7 +28,7 @@ def getPerms(app_id):
     if "record audio" in response["permissions"]:
         perm_list += "Record Audio, "
 
-    if "precise location (GPS and network-based)" or "approximate location (network-based)" in response["permissions"]:
+    if ("precise location (GPS and network-based)" in response["permissions"]) or ("approximate location (network-based)" in response["permissions"]):
         perm_list += "Location Access, "
 
     if "take pictures and videos" in response["permissions"]:
@@ -42,5 +42,8 @@ def getPerms(app_id):
 
     if "find accounts on the device" in response["permissions"]:
         perm_list += "Read Identity & Contacts, "
+    
+    if len(perm_list) == 0:
+        return "No major permissions requested"
 
     return perm_list[:-2]
