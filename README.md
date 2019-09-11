@@ -3,6 +3,7 @@
 * Responds to all app submissions on /r/GooglePlayDeals with information about the app found on the store page 
 * Flairs deals when they are expired when users reply with "expired"
 * Flairs deals with a new or popular tag based on the number of dowloads (New is <1,000 and popular is >10,000, and a 4 star rating)
+* Can also respond to self text posts that contain links to more than 1 app.
 
 #### These are the current features but here are a few more I would like to implement:
 
