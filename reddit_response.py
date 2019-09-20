@@ -316,7 +316,7 @@ Size: %s
 Last updated: %s  
 Contains IAPs: %s%s  
 Contains Ads: %s  
-Permissions: %s  
+%s
 Short description:  
 
 %s  

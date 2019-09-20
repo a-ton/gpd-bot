@@ -17,13 +17,13 @@ def getPerms(app_id):
                             headers=headers,
                             stream=True).json()
 
-    perm_list = ""
+    perm_list = "Permissions: "
 
     try:
         if "read the contents of your USB storage" in response["permissions"]:
             perm_list += "Read/Modify Storage, "
     except KeyError: 
-        return "Error getting permissions"
+        return ""
 
     if "read your text messages (SMS or MMS)" in response["permissions"]:
         perm_list += "Read/Send SMS, "
@@ -46,7 +46,7 @@ def getPerms(app_id):
     if "find accounts on the device" in response["permissions"]:
         perm_list += "Read Identity & Contacts, "
     
-    if len(perm_list) == 0:
-        return "No major permissions requested"
+    if perm_list == "Permissions: ":
+        return "Permissions: No major permissions requested.  "
 
-    return perm_list[:-2]
+    return perm_list[:-2] + "  "
