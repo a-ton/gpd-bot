@@ -19,8 +19,11 @@ def getPerms(app_id):
 
     perm_list = ""
 
-    if "read the contents of your USB storage" in response["permissions"]:
-        perm_list += "Read/Modify Storage, "
+    try:
+        if "read the contents of your USB storage" in response["permissions"]:
+            perm_list += "Read/Modify Storage, "
+    except KeyError: 
+        return "Error getting permissions"
 
     if "read your text messages (SMS or MMS)" in response["permissions"]:
         perm_list += "Read/Send SMS, "
