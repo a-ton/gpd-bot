@@ -1,3 +1,4 @@
+
 import time
 import praw
 import prawcore
@@ -208,9 +209,13 @@ def flair(app_rating, num_installs, sub):
     inst = num_installs.split("+")
     if (inst[0] == "Couldn't"):
         return
-    elif int(inst[0].replace(',', '')) <= 500:
+    try:
+        val = int(inst[0].replace(',', ''))
+    except (ValueError):
+       return
+    if val <= 500:
         sub.mod.flair(text='New app', css_class=None)
-    elif int(inst[0].replace(',', '')) >= 10000 and int(app_rating[0:1]) >= 4:
+    elif val >= 10000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
 
 # make an empty file for first run
@@ -259,7 +264,8 @@ def respond(submission):
             break
 
     if not submission.is_self:
-        app = AppInfo(submission, submission.url)
+        trimurl = submission.url.split("&")[0]
+        app = AppInfo(submission, trimurl)
 
     if len(valid_apps) == 1:
         app = valid_apps[0]
