@@ -19,8 +19,11 @@ def check_price(s, u):
     store_page = BeautifulSoup(page, "html.parser")
 
     # get current price
-    temp = store_page.find("meta", itemprop="price")
-    current_price = temp['content']
+    try:
+        temp = store_page.find("meta", itemprop="price")
+        current_price = temp['content']
+    except TypeError:
+        return True
 
 	# get full (normal) price
     try:
