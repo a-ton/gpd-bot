@@ -1,4 +1,3 @@
-
 import time
 import praw
 import prawcore
@@ -70,8 +69,8 @@ class AppInfo:
             if updated == None:
                 i = i + 2
             else:
-                if "201" in updated:  # this code is gonna break in 2020 lol
-                    i = 77
+                if "201" in updated or "202" in updated:
+                    return updated
                 i = i + 2
         return updated
 
