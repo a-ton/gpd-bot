@@ -4,7 +4,6 @@ import prawcore
 import requests
 import Config
 import re
-import permissions_getter
 from bs4 import BeautifulSoup
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
@@ -26,72 +25,52 @@ class BlacklistedDev(Error):
     pass
 
 class AppInfo:
-    def getName(self):
+    def getAPIResponse(self, url):
+        temp = url.split('?')
+        stripped_id = temp[1].split('&')
+        app_id = stripped_id[0][3:]
+        
+        req_params = {"country": "US"}
+        api = Config.permissions_api
+        url = "https://api.appmonsta.com/v1/stores/android/details/%s.json" % app_id
+        headers = {'Accept-Encoding': 'deflate, gzip'}
+        response = requests.get(url,
+                                auth=(api, ""),
+                                params=req_params,
+                                headers=headers,
+                                stream=True).json()
+
         try:
-            app_name = self.store_page.find("h1", class_="AHFaub").string
-            return app_name
-        except AttributeError:
+            response["message"]
             raise LinkError
+        except KeyError:
+            return response
+
+    def getName(self):
+        return self.APIResponse["app_name"]
 
     def getNumDownloads(self):
-        i = 3
-        while i < 13:
-            installs = self.list_of_details[i].string
-            if installs == None:
-                i = i + 2
-            else:
-                try:
-                    inst = installs.split("+")
-                    int(inst[0].replace(',', ''))
-                    i = 77
-                except ValueError:
-                    i = i + 2
-        return installs
+        response = self.APIResponse
+        if len(response["downloads"]) == 0:
+            return "Not availible"
+        else:
+            return response["downloads"]
 
     def getRating(self):
-        try:
-            temp = self.store_page.find("div", class_="BHMmbe").string
-            rating = temp + "/5"
-        except AttributeError:
-            rating = "No ratings yet"
+        temp = self.APIResponse["all_rating"]
+        if not isinstance(temp, float):
+            return "No ratings yet!"
+        rating = str(temp) + "/5"
         return rating
 
     def getDeveloper(self):
-        dev = self.store_page.find("a", class_="hrTbp R8zArc").string
-        if dev in Config.blacklisted_devs:
-            raise BlacklistedDev
-        return dev
+        return self.APIResponse["publisher_name"]
 
     def getLastUpdateDate(self):
-        i = 1
-        while i < 13:
-            updated = self.list_of_details[i].string
-            if updated == None:
-                i = i + 2
-            else:
-                if "201" in updated or "202" in updated:
-                    return updated
-                i = i + 2
-        return updated
+        return self.APIResponse["status_date"]
 
     def getSize(self):
-        i = 3
-        while i < 17:
-            app_size = self.list_of_details[i].string
-            if app_size:
-                if "M" in app_size and app_size[0] != 'M':  # makes sure that it doesn't grab March
-                    break
-            i = i + 2
-        try:
-            if app_size == None:
-                app_size = "Not given"
-            else:
-                inst = app_size.replace('M', '')
-                inst = inst.replace('.', '')
-                int(inst)
-        except ValueError:
-            app_size = "Not given"
-        return app_size
+        return self.APIResponse["file_size"]
 
     def getCurrentPrice(self):
         try:
@@ -111,54 +90,59 @@ class AppInfo:
         return full_price
 
     def getIAPs(self):
-        iap_element = self.store_page.find("div", class_="bSIuKf")
-        if iap_element == None:
-            IAP = "No"
-        elif iap_element.string == None:
-            IAP = "Yes"
-        else:
-            if "Offers" in iap_element.string:
-                IAP = "Yes"
-            else:
-                IAP = "No"
-        return IAP
+        iap_scripts = self.store_page.find_all('script', text=re.compile(r'"In-app purchases"'))
+        if len(iap_scripts) > 0:
+            return 'Yes'
+        return 'No'
 
     def getAds(self):
-        iap_element = self.store_page.find("div", class_="bSIuKf")
-        if iap_element == None:
-            Ads = "No"
-        elif iap_element.string == None:
-            Ads = "Yes"
-        else:
-            if "Offers" in iap_element.string:
-                both = self.store_page.find("div", class_="aEKMHc")
-                if both == None:
-                    Ads = "No"
-                else:
-                    Ads = "Yes"
-            else:
-                Ads = "Yes"
-        return Ads
+        ads_scripts = self.store_page.find_all('script', text=re.compile(r'"Contains ads"'))
+        if len(ads_scripts) > 0:
+            return 'Yes'
+        return 'No'
 
     def getIAPInfo(self):
-        i = 3
-        IAP_info = ""
-        while i < 23:
-            string = self.list_of_details[i].string
-            if string == None:
-                i = i + 2
-                continue
-            if "per item" in string:
-                IAP_info = ", "
-                IAP_info += string
-                return IAP_info
-            i = i + 2
-        return IAP_info
+        response = self.APIResponse
+        if len(response["iap_price_range"]) == 0:
+            return response["iap_price_range"]
+        else:
+            return ", " + response["iap_price_range"]
 
     def getPermissions(self):
-        temp = self.url.split('?')
-        stripped_id = temp[1].split('&')
-        return permissions_getter.getPerms(stripped_id[0][3:])
+        response = self.APIResponse
+        perm_list = "Permissions: "
+
+        try:
+            if "read the contents of your USB storage" in response["permissions"]:
+                perm_list += "Read/Modify Storage, "
+        except KeyError: 
+            return ""
+
+        if "read your text messages (SMS or MMS)" in response["permissions"]:
+            perm_list += "Read/Send SMS, "
+
+        if "record audio" in response["permissions"]:
+            perm_list += "Record Audio, "
+
+        if ("precise location (GPS and network-based)" in response["permissions"]) or ("approximate location (network-based)" in response["permissions"]):
+            perm_list += "Location Access, "
+
+        if "take pictures and videos" in response["permissions"]:
+            perm_list += "Access Camera, "
+
+        if "view network connections" in response["permissions"]:
+            perm_list += "View Wi-Fi Info, "
+
+        if "retrieve running apps" in response["permissions"]:
+            perm_list += "Device & App History, "
+
+        if "find accounts on the device" in response["permissions"]:
+            perm_list += "Read Identity & Contacts, "
+        
+        if perm_list == "Permissions: ":
+            return "Permissions: No major permissions requested.  "
+
+        return perm_list[:-2] + "  "
 
     def getDescription(self):
         desc_strings = self.store_page.find("div", jsname="sngebd").stripped_strings
@@ -176,13 +160,14 @@ class AppInfo:
         self.invalid = False
         self.submission = submission
         page = requests.get(url).text
-        self.store_page = BeautifulSoup(page, "html.parser")
-        self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"})
-        try: 
-            self.name = self.getName()
+        try:
+            self.APIResponse = self.getAPIResponse(url)
         except LinkError:
             self.invalid = True
             return
+        self.store_page = BeautifulSoup(page, "html.parser")
+        self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"}) 
+        self.name = self.getName()
         self.downloads = self.getNumDownloads()
         self.rating = self.getRating()
         try:
@@ -195,7 +180,7 @@ class AppInfo:
         self.full_price = self.getFullPrice()
         self.IAPs = self.getIAPs()
         self.ads = self.getAds()
-        if (self.IAPs == "Yes"):
+        if self.IAPs == "Yes":
             self.IAP_info = self.getIAPInfo()
         else:
             self.IAP_info = ""
