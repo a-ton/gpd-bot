@@ -13,7 +13,7 @@
 
 * reddit_response.py
   1. Monitors subreddit for new posts
-  2. Scrape the google play link for info
+  2. Scrapes the google play link for info and uses the AppMonsta API
   3. Reply to post and add flair
   
 * msg_monitor.py
