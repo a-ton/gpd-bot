@@ -148,10 +148,14 @@ class AppInfo:
         desc_strings = self.store_page.find("div", jsname="sngebd").stripped_strings
         desc = ''
         totalChar = 0
+        totalLines = 0
         for s in desc_strings:
             desc += '>' + s + '  \n'
             totalChar += len(s)
+            totalLines += 1
             if totalChar >= 400:
+                break
+            if totalLines >= 10:
                 break
         return desc
 
@@ -160,11 +164,19 @@ class AppInfo:
         self.invalid = False
         self.submission = submission
         page = requests.get(url).text
-        try:
-            self.APIResponse = self.getAPIResponse(url)
-        except LinkError:
-            self.invalid = True
-            return
+
+        APISuccess = False
+        while(not APISuccess):
+            try:
+                self.APIResponse = self.getAPIResponse(url)
+                APISuccess = True
+            except LinkError:
+                self.invalid = True
+                return
+            except requests.exceptions.ConnectionError:
+                print("API Connection Error, waiting 5 minutes...")
+                time.sleep(300)
+        
         self.store_page = BeautifulSoup(page, "html.parser")
         self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"}) 
         self.name = self.getName()
