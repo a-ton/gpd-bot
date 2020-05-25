@@ -250,7 +250,7 @@ def respond(submission):
     # find apps that we can respond to
     valid_apps = []
     for url in unique_urls:
-        if not "http" in url:
+        if not "http" in url or not "play.google" in url:
             continue
         app = AppInfo(submission, url)
         if app.invalid:
