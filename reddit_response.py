@@ -250,7 +250,7 @@ def respond(submission):
     # find apps that we can respond to
     valid_apps = []
     for url in unique_urls:
-        if not "http" in url:
+        if not "http" in url or not "play.google" in url or "collection/cluster" in url:
             continue
         app = AppInfo(submission, url)
         if app.invalid:
@@ -261,6 +261,10 @@ def respond(submission):
 
     if not submission.is_self:
         trimurl = submission.url.split("&")[0]
+        if "collection/cluster" in trimurl:
+            print("SKIPPING, COLLECTION: " + submission.title)
+            logID(submission.id)
+            return
         app = AppInfo(submission, trimurl)
 
     if len(valid_apps) == 1:
