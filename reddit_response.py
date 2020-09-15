@@ -64,7 +64,10 @@ class AppInfo:
         return rating
 
     def getDeveloper(self):
-        return self.APIResponse["publisher_name"]
+        dev = self.APIResponse["publisher_name"]
+        if dev in Config.blacklisted_devs:
+            raise BlacklistedDev
+        return dev
 
     def getLastUpdateDate(self):
         return self.APIResponse["status_date"]
