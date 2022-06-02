@@ -86,11 +86,16 @@ class AppInfo:
         return current_price
 
     def getFullPrice(self):
-        try:
-            full_price = self.store_page.find("span", class_="LV0gI").string
-        except AttributeError:
-            full_price = self.getCurrentPrice() + " (can't get price in USD)"
+        full_price = self.APIResponse["price"]
+        if full_price ==  self.current_price:
+            full_price = full_price + " (can't get price history)"
         return full_price
+
+    def getPlayPass(self):
+        play_pass = self.store_page.find("a", class_="pFise")
+        if play_pass:
+            return "\n**Included with Play Pass**  "
+        return ""
 
     def getIAPs(self):
         iap_scripts = self.store_page.find_all('script', text=re.compile(r'"In-app purchases"'))
@@ -148,7 +153,7 @@ class AppInfo:
         return perm_list[:-2] + "  "
 
     def getDescription(self):
-        desc_strings = self.store_page.find("div", jsname="sngebd").stripped_strings
+        desc_strings = self.store_page.find("div", class_="bARER").stripped_strings
         desc = ''
         totalChar = 0
         totalLines = 0
@@ -181,7 +186,8 @@ class AppInfo:
                 time.sleep(300)
         
         self.store_page = BeautifulSoup(page, "html.parser")
-        self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"}) 
+        # outdated due to API and store page changes
+        # self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"}) 
         self.name = self.getName()
         self.downloads = self.getNumDownloads()
         self.rating = self.getRating()
@@ -193,6 +199,7 @@ class AppInfo:
         self.size = self.getSize()
         self.current_price = self.getCurrentPrice()
         self.full_price = self.getFullPrice()
+        self.play_pass = self.getPlayPass()
         self.IAPs = self.getIAPs()
         self.ads = self.getAds()
         if self.IAPs == "Yes":
@@ -214,7 +221,7 @@ def flair(app_rating, num_installs, sub):
        return
     if val <= 500:
         sub.mod.flair(text='New app', css_class=None)
-    elif val >= 10000 and int(app_rating[0:1]) >= 4:
+    elif val >= 100000 and int(app_rating[0:1]) >= 4:
         sub.mod.flair(text= 'Popular app', css_class=None)
 
 # make an empty file for first run
@@ -298,7 +305,6 @@ def respond(submission):
         reply_text += footer
         
         submission.reply(reply_text)
-        submission.mod.approve()
         
         print("Replied to: " + submission.title)
         logID(submission.id)
@@ -317,7 +323,7 @@ def respond(submission):
     else:
         reply_text = """Info for %s:
 
-Current price (USD): %s was %s  
+Current price (USD): %s was %s  %s
 Developer: %s  
 Rating: %s  
 Installs: %s  
@@ -332,10 +338,9 @@ Short description:
 
 ***** 
 
-If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAPs, app.IAP_info, app.ads, app.permissions, app.desc)
+If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.play_pass, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAPs, app.IAP_info, app.ads, app.permissions, app.desc)
         reply_text += footer
         submission.reply(reply_text)
-        submission.mod.approve()
         print("Replied to: " + submission.title)
     logID(submission.id)
 
