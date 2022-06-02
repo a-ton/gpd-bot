@@ -11,27 +11,6 @@ reddit = praw.Reddit(client_id=Config.cid,
                      password=Config.password,
                      user_agent=Config.agent,
                      username=Config.user)
-def check_price(s, u):
-    print("Checking price")
-    if s.is_self:
-        return True
-    page = requests.get(u).text
-    store_page = BeautifulSoup(page, "html.parser")
-
-    # get current price
-    try:
-        temp = store_page.find("meta", itemprop="price")
-        current_price = temp['content']
-    except TypeError:
-        return True
-
-	# get full (normal) price
-    try:
-        full_price = store_page.find("span", class_="LV0gI").string
-        if full_price != current_price:
-            return False
-    except AttributeError:
-        return True
 
 print("Monitoring inbox...")
 while True:
@@ -75,14 +54,9 @@ while True:
                         elif expired:
                             msg.mark_read()
                             title_url = msg.submission.url
-                            is_expired = check_price(msg.submission, title_url)
-                            if is_expired:
-                                msg.submission.mod.flair(text='Deal Expired', css_class='expired')
-                                print("flairing... responded to: " + msg.author.name)
-                                msg.reply("Deal marked as expired. Reply with \"oops\" if this is incorrect." + footer)
-                            else:
-                                print("not expired... responded to: " + msg.author.name)
-                                msg.reply("This still appears to be a deal, not marked as expired. The deal is probably not availible in your region. Please avoid marking deals as expired unless you are 100% sure they are." + footer)
+                            msg.submission.mod.flair(text='Deal Expired', css_class='expired')
+                            print("flairing... responded to: " + msg.author.name)
+                            msg.reply("Deal marked as expired. Reply with \"oops\" if this is incorrect." + footer)
             except AttributeError:
                 print("error checking comment by: " + msg.author.name)
     except (prawcore.exceptions.RequestException, prawcore.exceptions.ResponseException):
