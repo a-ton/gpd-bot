@@ -73,7 +73,10 @@ class AppInfo:
         return self.APIResponse["status_date"]
 
     def getSize(self):
-        return self.APIResponse["file_size"]
+        if len(self.APIResponse["file_size"]) > 0:
+            return self.APIResponse["file_size"]
+        else:
+            return "N/A"
 
     def getCurrentPrice(self):
         try:
@@ -97,24 +100,18 @@ class AppInfo:
             return "\n**Included with Play Pass**  "
         return ""
 
-    def getIAPs(self):
-        iap_scripts = self.store_page.find_all('script', text=re.compile(r'"In-app purchases"'))
-        if len(iap_scripts) > 0:
-            return 'Yes'
-        return 'No'
-
     def getAds(self):
-        ads_scripts = self.store_page.find_all('script', text=re.compile(r'"Contains ads"'))
-        if len(ads_scripts) > 0:
+        response = self.APIResponse
+        if response["contains_ads"]:
             return 'Yes'
         return 'No'
 
     def getIAPInfo(self):
         response = self.APIResponse
-        if len(response["iap_price_range"]) == 0:
-            return response["iap_price_range"]
+        if len(response["iap_price_range"]) > 0:
+            return "Yes, " + response["iap_price_range"]
         else:
-            return ", " + response["iap_price_range"]
+            return "No"
 
     def getPermissions(self):
         response = self.APIResponse
@@ -200,12 +197,8 @@ class AppInfo:
         self.current_price = self.getCurrentPrice()
         self.full_price = self.getFullPrice()
         self.play_pass = self.getPlayPass()
-        self.IAPs = self.getIAPs()
+        self.IAP_info = self.getIAPInfo()
         self.ads = self.getAds()
-        if self.IAPs == "Yes":
-            self.IAP_info = self.getIAPInfo()
-        else:
-            self.IAP_info = ""
         self.desc = self.getDescription()
         self.url = url
         self.permissions = self.getPermissions()
@@ -298,7 +291,7 @@ def respond(submission):
                 print("Removed (developer blacklist): " + submission.title)
                 logID(submission.id)
                 return
-            reply_text += "Info for [%s](%s): Price (USD): %s was %s | Rating: %s | Installs: %s | Size: %s | IAPs/Ads: %s%s/%s\n\n*****\n\n" % (app.name, app.url, app.current_price, app.full_price, app.rating, app.downloads, app.size, app.IAPs, app.IAP_info, app.ads)
+            reply_text += "Info for [%s](%s): Price (USD): %s was %s | Rating: %s | Installs: %s | Size: %s | IAPs/Ads: %s/%s\n\n*****\n\n" % (app.name, app.url, app.current_price, app.full_price, app.rating, app.downloads, app.size, app.IAP_info, app.ads)
         if len(valid_apps) >= 10:
             reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
@@ -329,7 +322,7 @@ Rating: %s
 Installs: %s  
 Size: %s  
 Last updated: %s  
-Contains IAPs: %s%s  
+Contains IAPs: %s  
 Contains Ads: %s  
 %s
 Short description:  
@@ -338,7 +331,7 @@ Short description:
 
 ***** 
 
-If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.play_pass, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAPs, app.IAP_info, app.ads, app.permissions, app.desc)
+If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.play_pass, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAP_info, app.ads, app.permissions, app.desc)
         reply_text += footer
         submission.reply(reply_text)
         print("Replied to: " + submission.title)
