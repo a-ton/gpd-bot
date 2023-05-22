@@ -2,9 +2,13 @@ import time
 import praw
 import prawcore
 import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 import Config
 import re
-from bs4 import BeautifulSoup
+import urllib
+import urllib.request
 reddit = praw.Reddit(client_id=Config.cid,
                      client_secret=Config.secret,
                      password=Config.password,
@@ -25,74 +29,49 @@ class BlacklistedDev(Error):
     pass
 
 class AppInfo:
-    def getAPIResponse(self, url):
-        temp = url.split('?')
-        stripped_id = temp[1].split('&')
-        app_id = stripped_id[0][3:]
-        
-        req_params = {"country": "US"}
-        api = Config.permissions_api
-        url = "https://api.appmonsta.com/v1/stores/android/details/%s.json" % app_id
-        headers = {'Accept-Encoding': 'deflate, gzip'}
-        response = requests.get(url,
-                                auth=(api, ""),
-                                params=req_params,
-                                headers=headers,
-                                stream=True).json()
-
-        try:
-            response["message"]
-            raise LinkError
-        except KeyError:
-            return response
-
+    #  Get the name of the app from the store page
     def getName(self):
-        return self.APIResponse["app_name"]
-
+        return self.store_page.find("h1", itemprop="name").get_text()
+    
     def getNumDownloads(self):
-        response = self.APIResponse
-        if len(response["downloads"]) == 0:
-            return "Not availible"
-        else:
-            return response["downloads"]
-
+        for item in self.expanded_details:
+            if "Downloads" in item.text:
+                downloads = item.text[len("Downloads"):]
+                return downloads
+        return "Couldn't get downloads"
+    
     def getRating(self):
-        temp = self.APIResponse["all_rating"]
-        if not isinstance(temp, float):
-            return "No ratings yet!"
-        rating = str(temp) + "/5"
-        return rating
+        rating = self.store_page.find("div", class_="TT9eCd").get_text()
+        return rating[:-4] + "/5"
 
     def getDeveloper(self):
-        dev = self.APIResponse["publisher_name"]
-        if dev in Config.blacklisted_devs:
-            raise BlacklistedDev
-        return dev
+        dev = self.store_page.find("div", class_="Vbfug auoIOc")
+        dev_url = dev.find("a").get("href")
+        return "[" + dev.get_text() + "]" + "(https://play.google.com" + dev_url + ")"
 
     def getLastUpdateDate(self):
-        return self.APIResponse["status_date"]
+        for item in self.expanded_details:
+            if "Updated on" in item.text:
+                return item.text[len("Updated on"):]
+        return "Couldn't get update date"
 
-    def getSize(self):
-        if len(self.APIResponse["file_size"]) > 0:
-            return self.APIResponse["file_size"]
-        else:
-            return "N/A"
+    #def getSize(self):
+    #    return "Currently unavailable"
 
-    def getCurrentPrice(self):
+    def getPriceInfo(self):
         try:
-            temp = self.store_page.find("meta", itemprop="price")
-            current_price = temp['content']
+            temp = self.store_page.find("span", class_="VfPpkd-vQzf8d").get_text()
         except TypeError:
             return "incorrect link"
-        if current_price == "0":
-            current_price = "Free"
-        return current_price
-
-    def getFullPrice(self):
-        full_price = self.APIResponse["price"]
-        if full_price ==  self.current_price:
-            full_price = full_price + " (can't get price history)"
-        return full_price
+        split_price = temp.split(" ")
+        full_price = split_price[0]
+        sale_price = split_price[1]
+        if sale_price == "Buy":
+            sale_price = "(Couldn't get sale info)"
+        if sale_price == "Install":
+            sale_price = "Free"
+        return sale_price + " was " + full_price
+    
 
     def getPlayPass(self):
         play_pass = self.store_page.find("a", class_="pFise")
@@ -101,53 +80,37 @@ class AppInfo:
         return ""
 
     def getAds(self):
-        response = self.APIResponse
-        if response["contains_ads"]:
-            return 'Yes'
-        return 'No'
+        check = self.store_page.findAll("span", class_="UIuSk")
+        for item in check:
+            if "Contains ads" in item.get_text():
+                return "Yes"
+        return "No"
 
     def getIAPInfo(self):
-        response = self.APIResponse
-        if len(response["iap_price_range"]) > 0:
-            return "Yes, " + response["iap_price_range"]
-        else:
-            return "No"
+        IAP_check = "No"
+        check = self.store_page.findAll("span", class_="UIuSk")
+        for item in check:
+            if "In-app purchases" in item.get_text():
+                IAP_check = "Yes"
+        if IAP_check == "Yes":
+            for selenium_item in self.expanded_details:
+                if "In-app purchases" in selenium_item.text:
+                    IAP_check += ", " + selenium_item.text[len("In-app purchases"):]
+        return IAP_check
 
     def getPermissions(self):
-        response = self.APIResponse
-        perm_list = "Permissions: "
+        perm_list = ""
 
-        try:
-            if "read the contents of your USB storage" in response["permissions"]:
-                perm_list += "Read/Modify Storage, "
-        except KeyError: 
-            return ""
+        for perm in self.expanded_permissions:
+            perm_list += ", "
+            if perm_list == ", ":
+                perm_list = perm_list[:-2]
+            perm_list += perm.text
 
-        if "read your text messages (SMS or MMS)" in response["permissions"]:
-            perm_list += "Read/Send SMS, "
+        if perm_list == "":
+            perm_list = "No permmissisons requested"
 
-        if "record audio" in response["permissions"]:
-            perm_list += "Record Audio, "
-
-        if ("precise location (GPS and network-based)" in response["permissions"]) or ("approximate location (network-based)" in response["permissions"]):
-            perm_list += "Location Access, "
-
-        if "take pictures and videos" in response["permissions"]:
-            perm_list += "Access Camera, "
-
-        if "view network connections" in response["permissions"]:
-            perm_list += "View Wi-Fi Info, "
-
-        if "retrieve running apps" in response["permissions"]:
-            perm_list += "Device & App History, "
-
-        if "find accounts on the device" in response["permissions"]:
-            perm_list += "Read Identity & Contacts, "
-        
-        if perm_list == "Permissions: ":
-            return "Permissions: No major permissions requested.  "
-
-        return perm_list[:-2] + "  "
+        return "Permissions: " + perm_list + "  "
 
     def getDescription(self):
         desc_strings = self.store_page.find("div", class_="bARER").stripped_strings
@@ -169,39 +132,39 @@ class AppInfo:
         self.invalid = False
         self.submission = submission
         page = requests.get(url).text
-
-        APISuccess = False
-        while(not APISuccess):
-            try:
-                self.APIResponse = self.getAPIResponse(url)
-                APISuccess = True
-            except LinkError:
-                self.invalid = True
-                return
-            except requests.exceptions.ConnectionError:
-                print("API Connection Error, waiting 5 minutes...")
-                time.sleep(300)
         
         self.store_page = BeautifulSoup(page, "html.parser")
-        # outdated due to API and store page changes
-        # self.list_of_details = self.store_page.findAll(attrs={"class": "htlgb"}) 
         self.name = self.getName()
-        self.downloads = self.getNumDownloads()
         self.rating = self.getRating()
         try:
             self.developer = self.getDeveloper()
         except BlacklistedDev:
             self.blacklist = True
-        self.last_update = self.getLastUpdateDate()
-        self.size = self.getSize()
-        self.current_price = self.getCurrentPrice()
-        self.full_price = self.getFullPrice()
+        self.price_info = self.getPriceInfo()
         self.play_pass = self.getPlayPass()
-        self.IAP_info = self.getIAPInfo()
-        self.ads = self.getAds()
         self.desc = self.getDescription()
         self.url = url
+        self.ads = self.getAds()
+
+        self.selenium = webdriver.Firefox()
+        self.selenium.get(url)
+        time.sleep(5)
+        details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[1]/div[2]/div/div[1]/div[1]/c-wiz[2]/div/section/header/div/div[2]/button")
+        details_button.click()
+        time.sleep(1)
+        
+        self.expanded_details = self.selenium.find_elements(By.CLASS_NAME, "sMUprd")
+        self.downloads = self.getNumDownloads()
+        self.last_update = self.getLastUpdateDate()
+        #self.size = self.getSize()
+        self.IAP_info = self.getIAPInfo()
+        
+        permissions_button = self.selenium.find_element(By.CSS_SELECTOR, "span.TCqkTe")
+        permissions_button.click()
+        time.sleep(1)
+        self.expanded_permissions = self.selenium.find_elements(By.CLASS_NAME, "aPeBBe")
         self.permissions = self.getPermissions()
+        self.selenium.close()
     
 
 def flair(app_rating, num_installs, sub):
@@ -287,17 +250,17 @@ def respond(submission):
             if app.blacklist:
                 reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
                 submission.mod.remove()
-                submission.reply(reply_text).mod.distinguish()
+                submission.reply(body=reply_text).mod.distinguish()
                 print("Removed (developer blacklist): " + submission.title)
                 logID(submission.id)
                 return
-            reply_text += "Info for [%s](%s): Price (USD): %s was %s | Rating: %s | Installs: %s | Size: %s | IAPs/Ads: %s/%s\n\n*****\n\n" % (app.name, app.url, app.current_price, app.full_price, app.rating, app.downloads, app.size, app.IAP_info, app.ads)
+            reply_text += "Info for [%s](%s): Price (USD): %s | Rating: %s | Installs: %s | IAPs/Ads: %s/%s\n\n*****\n\n" % (app.name, app.url, app.price_info, app.rating, app.downloads, app.IAP_info, app.ads)
         if len(valid_apps) >= 10:
             reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
         reply_text += footer
         
-        submission.reply(reply_text)
+        submission.reply(body=reply_text)
         
         print("Replied to: " + submission.title)
         logID(submission.id)
@@ -309,18 +272,17 @@ def respond(submission):
     if app.blacklist:
         reply_text = "Sorry, deals from one or more of the developers in your post have been blacklisted. Here is the full list of blacklisted developers: https://www.reddit.com/r/googleplaydeals/wiki/blacklisted_devlopers"
         submission.mod.remove()
-        submission.reply(reply_text).mod.distinguish()
+        submission.reply(body=reply_text).mod.distinguish()
         print("Removed (developer blacklist): " + submission.title)
     elif app.invalid:
         print("INCORRECT LINK Skipping: " + submission.title)
     else:
         reply_text = """Info for %s:
 
-Current price (USD): %s was %s  %s
+Current price (USD): %s  %s
 Developer: %s  
 Rating: %s  
 Installs: %s  
-Size: %s  
 Last updated: %s  
 Contains IAPs: %s  
 Contains Ads: %s  
@@ -331,9 +293,9 @@ Short description:
 
 ***** 
 
-If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.current_price, app.full_price, app.play_pass, app.developer, app.rating, app.downloads, app.size, app.last_update, app.IAP_info, app.ads, app.permissions, app.desc)
+If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban.""" % (app.name, app.price_info, app.play_pass, app.developer, app.rating, app.downloads, app.last_update, app.IAP_info, app.ads, app.permissions, app.desc)
         reply_text += footer
-        submission.reply(reply_text)
+        submission.reply(body=reply_text)
         print("Replied to: " + submission.title)
     logID(submission.id)
 
