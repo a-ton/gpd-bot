@@ -13,7 +13,7 @@
 
 * reddit_response.py
   1. Monitors subreddit for new posts
-  2. Scrapes the google play link for info and uses the AppMonsta API
+  2. Scrapes the google play link for information using bs4 and Selenium
   3. Reply to post and add flair
   
 * msg_monitor.py
@@ -25,6 +25,8 @@
 
 * PRAW 5.2.0+
 * bs4
+* selenium
+* Firefox browser and selenium drivfer
 
 ### Example response:
 >Info for Lucid Launcher Pro:  
