@@ -41,12 +41,17 @@ class AppInfo:
         return "Couldn't get downloads"
     
     def getRating(self):
-        rating = self.store_page.find("div", class_="TT9eCd").get_text()
+        try:
+            rating = self.store_page.find("div", class_="TT9eCd").get_text()
+        except AttributeError:
+            return "NA    "
         return rating[:-4] + "/5"
 
     def getDeveloper(self):
         dev = self.store_page.find("div", class_="Vbfug auoIOc")
         dev_url = dev.find("a").get("href")
+        if dev.get_text() in Config.blacklisted_devs:
+            raise BlacklistedDev
         return "[" + dev.get_text() + "]" + "(https://play.google.com" + dev_url + ")"
 
     def getLastUpdateDate(self):
