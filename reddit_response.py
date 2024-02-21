@@ -278,7 +278,7 @@ If this deal has expired, please reply to this comment with \"expired\". ^^^Abus
         for app_num, app in enumerate(valid_apps):
             if app_num >= 10:
                 break
-            reply_text += f"Info for [{app.name}]({app.url}): Price (USD): {app.price_info} | Rating: {app.rating} | Installs: {app.downloads} | IAPs/Ads: {app.iap_info}/{app.ads}\n\n*****\n\n"
+            reply_text += f"Info for [{app.name}]({app.url}): Price (USD): {app.price_info} | Rating: {app.rating} | Installs: {app.downloads} | Updated: {app.last_update} | IAPs/Ads: {app.iap_info}/{app.ads}\n\n*****\n\n"
         if len(valid_apps) >= 10:
             reply_text += "...and more. Max of 10 apps reached.\n\n*****\n\n"
         reply_text += "If any of these deals have expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."
