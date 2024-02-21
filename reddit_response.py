@@ -159,7 +159,7 @@ class AppInfo:
         self.selenium = webdriver.Firefox()
         self.selenium.get(url)
         time.sleep(5)
-        details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[2]/div[2]/div/div[1]/div[1]/c-wiz[2]/div/section/header/div/div[2]/button")
+        details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[1]/div[2]/div[2]/div/div[1]/div[1]/c-wiz[2]/div/section/header/div/div[2]/button/i")
         details_button.click()
         time.sleep(1)
 
