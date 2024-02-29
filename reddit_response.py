@@ -31,7 +31,7 @@ class BlacklistedDev(Error):
 class AppInfo:
     #  Get the name of the app from the store page
     def getName(self):
-        return self.store_page.find("h1", itemprop="name").get_text()
+        return self.store_page.find("h1", class_="Fd93Bb").get_text()
     
     def get_downloads(self):
         for item in self.expanded_details:
@@ -223,7 +223,7 @@ def respond(submission):
     # find apps that we can respond to
     valid_apps = []
     required_url = ["http", "play.google"]
-    disallowed_url = ["collection/cluster", "dev?id="]
+    disallowed_url = ["collection/cluster", "dev?id=", "store/search"]
     for url in unique_urls:
         # check if strings in required_url are part of url and if strings in disallowed_url do not exist in url
         if not all(x in url for x in required_url):
