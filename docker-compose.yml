@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+
+  gpd-bot:
+    image: ghcr.io/a-ton/gpd-bot:latest
+    container_name: gpd-bot
+    env_file:
+      - .env

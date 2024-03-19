@@ -5,16 +5,18 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import Config
 import re
 import urllib
 import urllib.request
-reddit = praw.Reddit(client_id=Config.cid,
-                     client_secret=Config.secret,
-                     password=Config.password,
-                     user_agent=Config.agent,
-                     username=Config.user)
-subreddit = reddit.subreddit(Config.subreddit)
+from dotenv import load_dotenv
+import os
+load_dotenv()
+reddit = praw.Reddit(client_id=os.getenv('GPD_CID'),
+                     client_secret=os.getenv('GPD_SECRET'),
+                     password=os.getenv('GPD_PASSWORD'),
+                     user_agent=os.getenv('GPD_AGENT'),
+                     username=os.getenv('GPD_USER'))
+subreddit = reddit.subreddit(os.getenv('GPD_SUBREDDIT'))
 
 class Error(Exception):
     """Base class"""
@@ -32,14 +34,14 @@ class AppInfo:
     #  Get the name of the app from the store page
     def getName(self):
         return self.store_page.find("h1", class_="Fd93Bb").get_text()
-    
+
     def get_downloads(self):
         for item in self.expanded_details:
             if "Downloads" in item.text:
                 downloads = item.text[len("Downloads"):]
                 return downloads
         return "Couldn't get downloads"
-    
+
     def get_rating(self):
         try:
             rating = self.store_page.find("div", class_="TT9eCd").get_text()
@@ -50,7 +52,7 @@ class AppInfo:
     def get_developer(self):
         dev = self.store_page.find("div", class_="Vbfug auoIOc")
         dev_url = dev.find("a").get("href")
-        if dev.get_text() in Config.blacklisted_devs:
+        if dev.get_text() in os.environ.list("GPD_BLACKLISTED_DEVS"):
             raise BlacklistedDev
         return "[" + dev.get_text() + "]" + "(https://play.google.com" + dev_url + ")"
 
@@ -81,7 +83,7 @@ class AppInfo:
         if full_price == "Install":
             full_price = "Free"
         return sale_price + " was " + full_price
-    
+
 
     def get_play_pass(self):
         play_pass = self.store_page.find("a", class_="pFise")
@@ -206,7 +208,7 @@ def respond(submission):
 ^^^[Source](https://github.com/a-ton/gpd-bot)
 ^^^|
 ^^^[Suggestions?](https://www.reddit.com/message/compose?to=Swimmer249)"""
-    
+
     all_urls = []
     if submission.is_self:
         all_urls = re.findall('(?:(?:https?):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', submission.selftext)
@@ -257,18 +259,18 @@ def respond(submission):
         reply_text = f"""Info for {app.name}:
 
 Current price (USD): {app.price_info}  {app.play_pass}
-Developer: {app.developer}  
-Rating: {app.rating}  
-Installs: {app.downloads}  
-Last updated: {app.last_update}  
-Contains IAPs: {app.iap_info}  
-Contains Ads: {app.ads}  
+Developer: {app.developer}
+Rating: {app.rating}
+Installs: {app.downloads}
+Last updated: {app.last_update}
+Contains IAPs: {app.iap_info}
+Contains Ads: {app.ads}
 {app.permissions}
-Short description:  
+Short description:
 
-{app.description}  
+{app.description}
 
-***** 
+*****
 
 If this deal has expired, please reply to this comment with \"expired\". ^^^Abuse ^^^will ^^^result ^^^in ^^^a ^^^ban."""
 
