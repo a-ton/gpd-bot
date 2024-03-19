@@ -1,13 +1,15 @@
 import time
 import praw
 import prawcore
-import Config
+from dotenv import load_dotenv
+import os
+load_dotenv()
 footer = "\n\n*****\n\n^^^[Source](https://github.com/a-ton/gpd-bot) ^^^| ^^^[Suggestions?](https://www.reddit.com/message/compose?to=Swimmer249)"
-reddit = praw.Reddit(client_id=Config.cid,
-                     client_secret=Config.secret,
-                     password=Config.password,
-                     user_agent=Config.agent,
-                     username=Config.user)
+reddit = praw.Reddit(client_id=os.getenv('GPD_CID'),
+                     client_secret=os.getenv('GPD_SECRET'),
+                     password=os.getenv('GPD_PASSWORD'),
+                     user_agent=os.getenv('GPD_AGENT'),
+                     username=os.getenv('GPD_USER'))
 
 print("Monitoring inbox...")
 while True:
