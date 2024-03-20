@@ -3,13 +3,7 @@ version: '3'
 services:
 
   gpd-bot:
-    image: gpd-bot
+    image: ghcr.io/a-ton/gpd-bot:latest
     container_name: gpd-bot
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ## I don't think persistent volumes are needed, but can be utilized if I am unable to read
-    #volumes:
-    #  - ${PWD}:/app/gpd-bot
     env_file:
       - .env
