@@ -72,6 +72,17 @@ This will start the container in a detached mode. Output/logs can be viewed with
 
 #### Other stuff
 
+
 In order to run the bot, you need to copy `.env.example`, rename to `.env`, and fill out the variables. Currently we don't need another version of the bot running around so that probably won't matter. I'm uploading this to github for better version control and also because a few users have wanted to view the source of the bot. Any help would be appreciated if you want to contribute to the project.
+
+### Running with Docker
+
+Uhhhhh until the PR is completed and polished, I'm gonna just brain dump.
+
+Assuming you already have the repo cloned, navigate to the folder and copy the example `.env` file with the following (and modify it): `cp .env.example .env && nano .env`
+
+`docker-compose` is preferred, and can be run with `docker compose up -d`. This will build the container locally, and then start it in a detached mode. Logs can be viewed with `docker logs -f gpd-bot`.
+
+If you want to re-build the container, run the following sequence to tear down the old container, rebuild, and bring up the new container: `docker compose down && docker compose build && docker compose up -d`.
 
 **Feel free to submit issues for ideas you have or issues with the bot!**
