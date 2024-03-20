@@ -10,12 +10,9 @@ import urllib
 import urllib.request
 from dotenv import load_dotenv
 import os
+import json
 load_dotenv()
-reddit = praw.Reddit(client_id=os.getenv('GPD_CID'),
-                     client_secret=os.getenv('GPD_SECRET'),
-                     password=os.getenv('GPD_PASSWORD'),
-                     user_agent=os.getenv('GPD_AGENT'),
-                     username=os.getenv('GPD_USER'))
+reddit = praw.Reddit()
 subreddit = reddit.subreddit(os.getenv('GPD_SUBREDDIT'))
 
 class Error(Exception):
@@ -52,7 +49,7 @@ class AppInfo:
     def get_developer(self):
         dev = self.store_page.find("div", class_="Vbfug auoIOc")
         dev_url = dev.find("a").get("href")
-        if dev.get_text() in os.environ.list("GPD_BLACKLISTED_DEVS"):
+        if dev.get_text() in json.load(os.environ["GPD_BLACKLISTED_DEVS"]):
             raise BlacklistedDev
         return "[" + dev.get_text() + "]" + "(https://play.google.com" + dev_url + ")"
 

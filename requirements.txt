@@ -1,4 +1,4 @@
-beautifulsoup4>=4.5
-praw>=5.2.0
-selenium>=3.6.0
+beautifulsoup4>=4.10
+praw>=7.7.1
+selenium>=4.6.0
 python-dotenv>=1.0.1
