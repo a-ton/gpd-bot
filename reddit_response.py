@@ -31,7 +31,7 @@ class BlacklistedDev(Error):
 class AppInfo:
     #  Get the name of the app from the store page
     def getName(self):
-        return self.store_page.find("h1", class_="Fd93Bb").get_text()
+        return self.store_page.find("span", class_="AfwdI").get_text()
     
     def get_downloads(self):
         for item in self.expanded_details:
@@ -90,7 +90,7 @@ class AppInfo:
         return ""
 
     def get_ads(self):
-        check = self.store_page.findAll("span", class_="UIuSk")
+        check = self.store_page.findAll("span", class_="reAt0")
         for item in check:
             if "Contains ads" in item.get_text():
                 return "Yes"
@@ -98,7 +98,7 @@ class AppInfo:
 
     def get_iap_info(self):
         iap_info = "No"
-        check = self.store_page.findAll("span", class_="UIuSk")
+        check = self.store_page.findAll("span", class_="reAt0")
         for item in check:
             if "In-app purchases" in item.get_text():
                 iap_info = "Yes"
@@ -159,7 +159,13 @@ class AppInfo:
         self.selenium = webdriver.Firefox()
         self.selenium.get(url)
         time.sleep(5)
-        details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[1]/div/div[2]/div/div[1]/div[1]/c-wiz[3]/div/section/header/div/div[2]/button/i")
+        details_button = False
+        try:
+            details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[1]/div/div[2]/div/div[1]/div[1]/c-wiz[2]/div/section/header/div/div[2]/button/i")
+        except Exception:
+            pass
+        if not details_button:
+            details_button = self.selenium.find_element(By.XPATH, "/html/body/c-wiz[2]/div/div/div[1]/div/div[2]/div/div[1]/div[2]/c-wiz[2]/div/section/header/div/div[2]/button/i")
         details_button.click()
         time.sleep(1)
 
