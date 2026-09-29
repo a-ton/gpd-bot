@@ -1,0 +1,15 @@
+services:
+  gpd-bot:
+    image: ghcr.io/a-ton/gpd-bot:latest
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTIDS_FILE: /data/postids.txt
+      FIREFOX_BINARY: /usr/bin/firefox-esr
+    volumes:
+      - gpd-bot-data:/data
+
+volumes:
+  gpd-bot-data:
