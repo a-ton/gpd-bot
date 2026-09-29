@@ -26,7 +26,59 @@
 * PRAW 5.2.0+
 * bs4
 * selenium
-* Firefox browser and selenium drivfer
+* Firefox browser and selenium driver
+* requests
+
+### Docker
+
+Copy `.env.example` to `.env` and fill in the Reddit API credentials. Those values replace the old `Config.py` settings.
+
+```
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_USER_AGENT=python:gpd-bot:1.0 (by /u/GPDBot)
+REDDIT_USERNAME=
+REDDIT_PASSWORD=
+REDDIT_SUBREDDIT=googleplaydeals
+BLACKLISTED_DEVS=
+```
+
+`BLACKLISTED_DEVS` is a comma-separated list of developer names.
+
+`reddit_response.py` and `msg_monitor.py` start together. Processed post IDs are stored in the `gpd-bot-data` volume. Headless Firefox is included in the image.
+
+#### Run the published image (other hosts)
+
+Images are published to GitHub Container Registry on each push to `master`:
+
+`ghcr.io/a-ton/gpd-bot:latest`
+
+On another machine, copy `.env.example` to `.env`, fill in credentials, then:
+
+```
+docker pull ghcr.io/a-ton/gpd-bot:latest
+docker compose up -d
+```
+
+Or without Compose:
+
+```
+docker run -d --name gpd-bot --restart unless-stopped --env-file .env -v gpd-bot-data:/data ghcr.io/a-ton/gpd-bot:latest
+```
+
+If the package is private, log in first:
+
+```
+echo YOUR_GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+```
+
+After the first publish, set the package to public at https://github.com/a-ton/gpd-bot/pkgs/container/gpd-bot if you want unauthenticated pulls.
+
+#### Build locally from source
+
+```
+docker compose up --build
+```
 
 ### Example response:
 >Info for Lucid Launcher Pro:  
@@ -53,6 +105,6 @@
 
 #### Other stuff
 
-In order to run the bot, you need to fill out the Config.py file but currently we don't need another version of the bot running around so that probably won't matter. I'm uploading this to github for better version control and also because a few users have wanted to view the source of the bot. Any help would be appreciated if you want to contribute to the project. 
+Credentials and settings are passed as environment variables (see `.env.example` / Docker Compose). Currently we don't need another version of the bot running around so that probably won't matter. I'm uploading this to github for better version control and also because a few users have wanted to view the source of the bot. Any help would be appreciated if you want to contribute to the project. 
 
 **Feel free to submit issues for ideas you have or issues with the bot!**

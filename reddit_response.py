@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import Config
 import re
 import urllib
@@ -156,7 +157,11 @@ class AppInfo:
         self.url = url
         self.ads = self.get_ads()
 
-        self.selenium = webdriver.Firefox()
+        firefox_options = FirefoxOptions()
+        firefox_options.add_argument("-headless")
+        if Config.firefox_binary:
+            firefox_options.binary_location = Config.firefox_binary
+        self.selenium = webdriver.Firefox(options=firefox_options)
         self.selenium.get(url)
         time.sleep(5)
         details_button = False
@@ -180,7 +185,7 @@ class AppInfo:
         time.sleep(1)
         self.expanded_permissions = self.selenium.find_elements(By.CLASS_NAME, "aPeBBe")
         self.permissions = self.get_permissions()
-        self.selenium.close()
+        self.selenium.quit()
 
 
 def flair(app_rating, num_installs, sub):
@@ -197,10 +202,10 @@ def flair(app_rating, num_installs, sub):
         sub.mod.flair(text= 'Popular app', css_class=None)
 
 # make an empty file for first run
-f = open("postids.txt","a+")
+f = open(Config.postids_file, "a+")
 f.close()
 def logID(postid):
-    f = open("postids.txt","a+")
+    f = open(Config.postids_file, "a+")
     f.write(postid + "\n")
     f.close()
 
@@ -301,7 +306,7 @@ while True:
             if submission.created < int(time.time()) - 86400:
                 continue
             if submission.title[0:2].lower() == "[a" or submission.title[0:2].lower() == "[i" or submission.title[0:2].lower() == "[g":
-                if submission.id in open('postids.txt').read():
+                if submission.id in open(Config.postids_file).read():
                     continue
                 for top_level_comment in submission.comments:
                     try:

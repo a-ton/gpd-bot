@@ -1,3 +1,4 @@
 beautifulsoup4>=4.5
 praw>=5.2.0
-selenium>=3.6.0
+selenium>=4.15.0
+requests>=2.28.0
